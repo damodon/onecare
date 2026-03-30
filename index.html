@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GlucoLens">
+<meta name="theme-color" content="#0a0f1a">
+<title>GlucoLens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0a0f1a;
+  --bg2: #111827;
+  --bg3: #1a2332;
+  --surface: #1e2d42;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0f4ff;
+  --text2: #8899b8;
+  --text3: #4d6080;
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --green: #22c55e;
+  --green2: #166534;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --red2: #7f1d1d;
+  --teal: #14b8a6;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --r: 16px;
+  --r-sm: 10px;
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bot: env(safe-area-inset-bottom, 34px);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── SCREENS ── */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(30px);
+  transition: opacity 0.32s ease, transform 0.32s ease;
+  background: var(--bg);
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(0);
+}
+.screen.exit {
+  opacity: 0;
+  transform: translateX(-30px);
+  pointer-events: none;
+}
+
+.screen-inner {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: calc(var(--safe-top) + 12px) 24px calc(var(--safe-bot) + 100px);
+  scrollbar-width: none;
+}
+.screen-inner::-webkit-scrollbar { display: none; }
+
+/* ── STATUS BAR SPACER ── */
+.status-bar {
+  height: calc(var(--safe-top));
+  flex-shrink: 0;
+  background: transparent;
+}
+
+/* ── TYPOGRAPHY ── */
+.display { font-family: var(--font-display); font-size: 38px; line-height: 1.15; color: var(--text); }
+.display em { font-style: italic; color: var(--accent2); }
+.headline { font-size: 22px; font-weight: 500; color: var(--text); line-height: 1.3; }
+.subhead { font-size: 15px; color: var(--text2); line-height: 1.6; margin-top: 8px; }
+.label { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); }
+.caption { font-size: 13px; color: var(--text2); }
+
+/* ── PROGRESS BAR ── */
+.progress-wrap { padding: 0 24px 0; margin-bottom: 0; }
+.progress-track { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
+.step-label { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; padding: 16px;
+  border-radius: var(--r);
+  font-family: var(--font-body);
+  font-size: 15px; font-weight: 500;
+  border: none; cursor: pointer;
+  transition: transform 0.14s, opacity 0.14s;
+  -webkit-appearance: none;
+  gap: 8px;
+}
+.btn:active { transform: scale(0.97); opacity: .88; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border2); }
+.btn-ghost { background: transparent; color: var(--text2); font-size: 14px; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-stack { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+
+/* ── INPUTS ── */
+.input-group { margin-bottom: 16px; }
+.input-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; display: block; }
+.input {
+  width: 100%; padding: 14px 16px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text);
+  font-family: var(--font-body); font-size: 15px;
+  -webkit-appearance: none; outline: none;
+  transition: border-color .2s;
+}
+.input:focus { border-color: var(--accent); }
+.input::placeholder { color: var(--text3); }
+.input[type=password] { letter-spacing: 2px; }
+.input[type=password]::placeholder { letter-spacing: 0; }
+
+/* ── STRENGTH BAR ── */
+.strength-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.strength-fill { height: 100%; border-radius: 2px; transition: width .3s, background .3s; width: 0; }
+
+/* ── CARD ── */
+.card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.card-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 12px; letter-spacing: .03em; }
+
+/* ── TOGGLE ROWS ── */
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+.toggle-row:first-child { padding-top: 0; }
+.toggle-info .toggle-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.toggle-info .toggle-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.sw {
+  width: 48px; height: 28px; border-radius: 14px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  position: relative; cursor: pointer; flex-shrink: 0;
+  transition: background .25s;
+}
+.sw.on { background: var(--green); border-color: var(--green); }
+.sw::after {
+  content: '';
+  position: absolute;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff;
+  top: 2px; left: 2px;
+  transition: transform .25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+.sw.on::after { transform: translateX(20px); }
+
+/* ── OPTION CHIPS ── */
+.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 9px 16px; border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  cursor: pointer; transition: all .18s;
+}
+.chip.sel {
+  background: rgba(59,130,246,.18);
+  border-color: var(--accent);
+  color: var(--accent2);
+}
+
+/* ── SLIDER ── */
+.slider-group { margin-bottom: 20px; }
+.slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.slider-header .lbl { font-size: 13px; color: var(--text2); }
+.slider-header .val { font-size: 16px; font-weight: 600; color: var(--text); font-family: var(--font-display); }
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 4px;
+  background: var(--bg2); border-radius: 2px; outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); border: 2px solid #fff;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.25);
+  cursor: pointer;
+}
+
+/* ── TC SCROLL ── */
+.tc-body {
+  background: var(--bg2); border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  height: 260px; overflow-y: auto;
+  padding: 16px; font-size: 13px;
+  color: var(--text2); line-height: 1.7;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.tc-body h4 { color: var(--text); font-size: 13px; margin: 12px 0 4px; }
+.tc-body h4:first-child { margin-top: 0; }
+
+/* ── CONNECT SERVICES ── */
+.service-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.service-row:last-child { border-bottom: none; }
+.service-icon {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.service-info { flex: 1; }
+.service-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.service-status { font-size: 11px; margin-top: 2px; }
+.status-connected { color: var(--green); }
+.status-skipped { color: var(--text3); }
+.btn-sm {
+  padding: 7px 14px; border-radius: 8px; font-size: 12px;
+  font-weight: 500; border: 1px solid var(--border2);
+  background: var(--surface); color: var(--text);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+  font-family: var(--font-body);
+}
+.btn-sm.connected { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.3); color: var(--green); }
+.btn-sm:active { transform: scale(.96); }
+
+/* ── GLUCOSE READING (DASHBOARD) ── */
+.glucose-hero {
+  text-align: center; padding: 32px 0 24px;
+}
+.glucose-num {
+  font-family: var(--font-display);
+  font-size: 80px; line-height: 1;
+  color: var(--text);
+  position: relative; display: inline-flex; align-items: baseline; gap: 8px;
+}
+.glucose-num .unit { font-size: 18px; color: var(--text2); font-family: var(--font-body); font-weight: 400; }
+.trend { font-size: 28px; margin-top: 4px; }
+.in-range-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px; margin-top: 10px;
+  font-size: 13px; font-weight: 500;
+}
+.badge-green { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.25); }
+.badge-amber { background: rgba(245,158,11,.12); color: var(--amber); border: 1px solid rgba(245,158,11,.25); }
+.badge-red { background: rgba(239,68,68,.12); color: var(--red); border: 1px solid rgba(239,68,68,.25); }
+
+.tir-wrap { padding: 0 4px; margin-bottom: 20px; }
+.tir-bar {
+  height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; margin-bottom: 6px;
+  display: flex;
+}
+.tir-segment-low { background: var(--red); height: 100%; }
+.tir-segment-in { background: var(--green); height: 100%; }
+.tir-segment-high { background: var(--amber); height: 100%; }
+.tir-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); }
+
+/* ── QUICK LOG ── */
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.quick-btn {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px 12px;
+  text-align: center; cursor: pointer;
+  transition: all .18s;
+}
+.quick-btn:active { transform: scale(.96); background: var(--surface); }
+.quick-btn .q-icon { font-size: 26px; margin-bottom: 6px; }
+.quick-btn .q-label { font-size: 12px; font-weight: 500; color: var(--text2); }
+
+/* ── CHART ROTATE PROMPT ── */
+.chart-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden; cursor: pointer;
+}
+.chart-preview {
+  height: 120px; padding: 12px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.rotate-hint {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--text2);
+}
+.rotate-icon { font-size: 28px; }
+.rotate-text { font-size: 12px; color: var(--text3); text-align: center; }
+
+/* ── TODAY LOG LIST ── */
+.log-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.log-item:last-child { border-bottom: none; }
+.log-dot {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.log-dot-meal { background: rgba(59,130,246,.15); }
+.log-dot-activity { background: rgba(34,197,94,.15); }
+.log-dot-insulin { background: rgba(239,68,68,.15); }
+.log-info { flex: 1; }
+.log-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.log-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.log-impact { font-size: 12px; font-weight: 600; }
+.log-up { color: var(--amber); }
+.log-down { color: var(--teal); }
+
+/* ── LANDSCAPE CHART SCREEN ── */
+#s-chart {
+  background: var(--bg);
+  display: none;
+  flex-direction: column;
+}
+#s-chart.active {
+  display: flex;
+  opacity: 1;
+  pointer-events: all;
+  transform: none;
+}
+.chart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px 8px;
+  padding-top: calc(var(--safe-top) + 8px);
+}
+.chart-current {
+  display: flex; align-items: baseline; gap: 6px;
+}
+.chart-num { font-family: var(--font-display); font-size: 36px; color: var(--text); }
+.chart-unit-small { font-size: 13px; color: var(--text2); }
+.chart-range-pill { font-size: 11px; padding: 3px 10px; border-radius: 10px; }
+.chart-body { flex: 1; padding: 0 16px 12px; min-height: 0; }
+.chart-controls {
+  display: flex; gap: 6px; padding: 0 16px 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.chart-controls::-webkit-scrollbar { display: none; }
+.ctrl-pill {
+  padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border2); background: transparent; color: var(--text2);
+  cursor: pointer; white-space: nowrap; transition: all .15s;
+  font-family: var(--font-body);
+}
+.ctrl-pill.active { background: rgba(59,130,246,.2); border-color: var(--accent); color: var(--accent2); }
+.chart-legend {
+  display: flex; gap: 16px; padding: 0 16px 12px; flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; }
+.close-chart {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; color: var(--text2);
+  flex-shrink: 0;
+}
+
+/* ── ORIENTATION LOCK OVERLAY ── */
+#orient-lock {
+  display: none;
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 16px;
+}
+#orient-lock .ol-icon { font-size: 48px; animation: spin-back .6s ease-in-out infinite alternate; }
+@keyframes spin-back {
+  from { transform: rotate(-15deg); }
+  to { transform: rotate(15deg); }
+}
+#orient-lock .ol-text { font-size: 16px; font-weight: 500; color: var(--text); }
+#orient-lock .ol-sub { font-size: 13px; color: var(--text2); max-width: 260px; }
+
+/* ── SPLASH ── */
+#s-splash {
+  align-items: center; justify-content: center;
+  background: var(--bg);
+}
+.splash-logo {
+  font-family: var(--font-display);
+  font-size: 46px; color: var(--text);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.splash-logo .logo-sub { font-size: 14px; color: var(--text3); font-family: var(--font-body); font-weight: 400; letter-spacing: .1em; text-transform: uppercase; }
+.splash-ring {
+  width: 80px; height: 80px; border-radius: 50%;
+  border: 2px solid var(--accent);
+  position: relative; margin-bottom: 16px;
+  animation: pulse-ring 1.8s ease infinite;
+}
+.splash-ring::after {
+  content: ''; position: absolute;
+  inset: 8px; border-radius: 50%;
+  background: rgba(59,130,246,.15);
+  animation: pulse-core 1.8s ease infinite;
+}
+.splash-ring .ring-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 26px; color: var(--accent2);
+}
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,.25); }
+  50% { box-shadow: 0 0 0 14px rgba(59,130,246,.0); }
+}
+@keyframes pulse-core {
+  0%, 100% { opacity: .5; }
+  50% { opacity: 1; }
+}
+
+/* ── VERIFICATION SCREEN ── */
+.verify-code { display: flex; gap: 10px; justify-content: center; margin: 24px 0; }
+.code-box {
+  width: 46px; height: 56px; border-radius: var(--r-sm);
+  background: var(--bg3); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 24px; color: var(--text);
+}
+.code-box.filled { border-color: var(--accent); color: var(--accent2); background: rgba(59,130,246,.08); }
+
+/* ── STEP DOTS ── */
+.step-dots { display: flex; gap: 6px; justify-content: center; padding: 12px 0; }
+.step-dot { width: 6px; height: 6px; border-radius: 3px; background: var(--bg3); transition: all .3s; }
+.step-dot.active { background: var(--accent); width: 18px; }
+.step-dot.done { background: var(--green); }
+
+/* ── NOTIFICATION TIMES ── */
+.notif-time-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.notif-time-row:last-child { border-bottom: none; }
+.time-select {
+  background: var(--bg2); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 8px; padding: 6px 10px;
+  font-family: var(--font-body); font-size: 14px; outline: none;
+  cursor: pointer;
+}
+
+/* ── PULSE DOT (live reading) ── */
+.live-dot {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--green);
+  display: inline-block;
+  animation: live-pulse 1.4s ease infinite;
+  margin-right: 6px;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .4; transform: scale(1.4); }
+}
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── SECTION HEADER ── */
+.section-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+/* ── BACK BUTTON ── */
+.back-btn {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--text2); font-size: 14px; cursor: pointer;
+  background: none; border: none; font-family: var(--font-body);
+  padding: 0;
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(56px + var(--safe-bot));
+  padding-bottom: var(--safe-bot);
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 10;
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; cursor: pointer; background: none; border: none;
+  color: var(--text3); font-family: var(--font-body);
+  transition: color .2s;
+}
+.nav-btn.active { color: var(--accent2); }
+.nav-btn .n-icon { font-size: 20px; }
+.nav-btn .n-label { font-size: 9px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
+
+/* ── CONFIRMATION / SUCCESS ── */
+.success-ring {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(34,197,94,.1); border: 2px solid var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 20px;
+}
+
+/* ── MISC ── */
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+.mt24 { margin-top: 24px; }
+.mb8 { margin-bottom: 8px; }
+.mb16 { margin-bottom: 16px; }
+.pill-unit {
+  display: flex; gap: 0; border: 1px solid var(--border2);
+  border-radius: 20px; overflow: hidden; align-self: flex-start;
+}
+.unit-opt {
+  padding: 7px 16px; font-size: 13px; font-weight: 500;
+  color: var(--text2); cursor: pointer; transition: all .15s;
+  background: transparent;
+}
+.unit-opt.active { background: var(--accent); color: #fff; }
+.footnote { font-size: 11px; color: var(--text3); text-align: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══════════════════════════════ SPLASH ══════════════════════════════ -->
+<div class="screen active" id="s-splash" style="align-items:center;justify-content:center;gap:0;">
+  <div class="status-bar"></div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
+    <div class="splash-ring"><div class="ring-num">GL</div></div>
+    <div class="splash-logo">
+      GlucoLens
+      <span class="logo-sub">Know your glucose story</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ 2. WELCOME ══════════════════════════════ -->
+<div class="screen" id="s-welcome">
+  <div class="status-bar"></div>
+  <div class="screen-inner" style="display:flex;flex-direction:column;justify-content:flex-end;min-height:100%;">
+    <div style="flex:1;display:flex;align-items:center;">
+      <div>
+        <p class="label mb8">Glucose intelligence</p>
+        <p class="display">Track.<br>Understand.<br><em>Live well.</em></p>
+        <p class="subhead">See how food, exercise, sleep and mood shape your glucose — all in one place.</p>
+      </div>
+    </div>
+    <div class="btn-stack">
+      <button class="btn btn-primary" onclick="go('s-signup')">Create account</button>
+      <button class="btn btn-secondary" onclick="go('s-login')">I already have an account</button>
+    </div>
+    <p class="footnote mt16">GlucoLens is not a substitute for medical advice.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ 3. CREATE ACCOUNT ══════════════════════════════ -->
+<div class="screen" id="s-signup">
+  <div class="status-bar"></div>
+  <div class="progress-wrap" style="padding-top:12px;">
+    <button class="back-btn" onclick="go('s-welcome')">← Back</button>
+  </div>
+  <div class="screen-inner">
+    <p class="headline mt16">Create your account</p>
+    <p class="subhead mb16">Step 1 of 2 — your details</p>
+
+    <div class="input-group">
+      <label class="input-label">Full name</label>
+      <input class="input" type="text" placeholder="Damian Mead" id="inp-name">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Email address</label>
+      <input class="input" type="email" placeholder="you@example.com" id="inp-email">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Password</label>
+      <input class="input" type="password" placeholder="At least 8 characters" id="inp-pw" oninput="checkStrength(this.value)">
+      <div class="strength-bar"><div class="strength-fill" id="str-fill"></div></div>
+      <p class="caption mt8" id="str-label" style="color:var(--text3);">Enter a password</p>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Confirm password</label>
+      <input class="input" type="password" placeholder="Repeat password" id="inp-pw2">
+    </div>
+
+    <div class="btn-stack" style="margin-top:16px;">
+      <button class="btn btn-primary" onclick="go('s-verify')">Continue →</button>
+    </div>
+    <p class="footnote mt16">By continuing you agree to receive email communications from GlucoLens.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ 4. EMAIL VERIFICATION ══════════════════════════════ -->
+<div class="screen" id="s-verify">
+  <div class="status-bar"></div>
+  <div class="screen-inner" style="text-align:center;">
+    <div style="font-size:52px;margin:40px 0 12px;">📬</div>
+    <p class="headline">Check your inbox</p>
+    <p class="subhead" style="text-align:center;">We've sent a 6-digit code to<br><strong id="verify-email" style="color:var(--text);">your email</strong></p>
+
+    <div class="verify-code">
+      <div class="code-box filled">3</div>
+      <div class="code-box filled">8</div>
+      <div class="code-box filled">4</div>
+      <div class="code-box">_</div>
+      <div class="code-box">_</div>
+      <div class="code-box">_</div>
+    </div>
+    <p class="caption" style="color:var(--text3);">Demo: code pre-filled. Tap Verify.</p>
+
+    <div class="btn-stack">
+      <button class="btn btn-primary" onclick="go('s-ob1-profile')">Verify & continue →</button>
+      <button class="btn btn-ghost">Resend code</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ 5. LOGIN ══════════════════════════════ -->
+<div class="screen" id="s-login">
+  <div class="status-bar"></div>
+  <div class="progress-wrap" style="padding-top:12px;">
+    <button class="back-btn" onclick="go('s-welcome')">← Back</button>
+  </div>
+  <div class="screen-inner">
+    <p class="headline mt16">Welcome back</p>
+    <p class="subhead mb16">Sign in to your GlucoLens account</p>
+
+    <div class="input-group">
+      <label class="input-label">Email address</label>
+      <input class="input" type="email" placeholder="you@example.com">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Password</label>
+      <input class="input" type="password" placeholder="Your password">
+    </div>
+    <p style="text-align:right;font-size:13px;color:var(--accent2);margin-bottom:8px;cursor:pointer;">Forgot password?</p>
+
+    <div class="btn-stack">
+      <button class="btn btn-primary" onclick="go('s-dashboard')">Sign in →</button>
+      <button class="btn btn-ghost" onclick="go('s-welcome')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ OB1: PROFILE ══════════════════════════════ -->
+<div class="screen" id="s-ob1-profile">
+  <div class="status-bar"></div>
+  <div class="progress-wrap" style="padding-top:12px;">
+    <div class="progress-track"><div class="progress-fill" style="width:20%"></div></div>
+    <p class="step-label">Step 1 of 5 — Your profile</p>
+  </div>
+  <div class="screen-inner">
+    <p class="headline mt16">About your diabetes</p>
+    <p class="subhead mb16">This helps us set smart defaults for your alerts.</p>
+
+    <div class="card">
+      <p class="card-title">Diabetes type</p>
+      <div class="chip-grid" id="diab-chips">
+        <div class="chip sel" onclick="pickChip('diab-chips',this)">Type 1</div>
+        <div class="chip" onclick="pickChip('diab-chips',this)">Type 2</div>
+        <div class="chip" onclick="pickChip('diab-chips',this)">Gestational</div>
+        <div class="chip" onclick="pickChip('diab-chips',this)">LADA</div>
+        <div class="chip" onclick="pickChip('diab-chips',this)">Pre-diabetes</div>
+        <div class="chip" onclick="pickChip('diab-chips',this)">Other</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">Insulin dependent?</p>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">I use insulin</div>
+          <div class="toggle-sub">We'll add insulin dose logging</div>
+        </div>
+        <div class="sw on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <p class="card-title" style="margin:0;">Target glucose range</p>
+        <div class="pill-unit">
+          <div class="unit-opt active" onclick="setUnit('mmol')">mmol/L</div>
+          <div class="unit-opt" onclick="setUnit('mgdl')">mg/dL</div>
+        </div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="lbl">Hypo alert below</span>
+          <span class="val" id="low-val">4.0 mmol/L</span>
+        </div>
+        <input type="range" min="2" max="6" step="0.1" value="4.0" id="low-slider" oninput="updateSlider('low',this.value)">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <span class="lbl">Hyper alert above</span>
+          <span class="val" id="high-val">10.0 mmol/L</span>
+        </div>
+        <input type="range" min="7" max="18" step="0.1" value="10.0" id="high-slider" oninput="updateSlider('high',this.value)">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="go('s-ob2-tc')">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ OB2: T&C ══════════════════════════════ -->
+<div class="screen" id="s-ob2-tc">
+  <div class="status-bar"></div>
+  <div class="progress-wrap" style="padding-top:12px;">
+    <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+    <p class="step-label">Step 2 of 5 — Terms & Privacy</p>
+  </div>
+  <div class="screen-inner">
+    <p class="headline mt16">Terms & Conditions</p>
+    <p class="subhead mb16">Please read and scroll to the bottom to accept.</p>
+
+    <div class="tc-body" id="tc-scroll" onscroll="checkTcScroll('tc-scroll','tc-btn')">
+      <h4>1. Acceptance of Terms</h4>
+      <p>By creating a GlucoLens account you agree to these Terms of Service ("Terms"). GlucoLens Pty Ltd ("we", "us", "our") provides a glucose monitoring companion app ("Service"). These Terms form a binding legal agreement.</p>
+      <h4>2. Not Medical Advice</h4>
+      <p>GlucoLens is a general wellness and informational tool. It does not constitute medical advice, diagnosis, or treatment. Always consult a qualified health professional for medical decisions. Do not make treatment decisions based solely on GlucoLens data.</p>
+      <h4>3. Data Collection</h4>
+      <p>We collect health and activity data you provide or import, including glucose readings, meal logs, insulin doses, activity data, and mood entries. This data is stored encrypted in Australian data centres. We do not sell your health data to third parties.</p>
+      <h4>4. Third-Party Integrations</h4>
+      <p>Connecting to Dexcom, Apple Health, Strava, or MyFitnessPal is subject to their respective terms. GlucoLens accesses only the data scopes you explicitly authorise.</p>
+      <h4>5. Notifications & Alerts</h4>
+      <p>Glucose alerts are provided as a convenience feature only. Do not rely exclusively on GlucoLens alerts for hypoglycaemia management. Always carry appropriate hypoglycaemia treatment.</p>
+      <h4>6. Limitation of Liability</h4>
+      <p>To the maximum extent permitted by law, GlucoLens Pty Ltd shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service.</p>
+      <h4>7. Governing Law</h4>
+      <p>These Terms are governed by the laws of Queensland, Australia. Disputes shall be subject to the exclusive jurisdiction of the courts of Queensland.</p>
+      <h4>8. Changes</h4>
+      <p>We may update these Terms. Continued use of the Service after changes constitutes acceptance. We will notify you of material changes by email.</p>
+      <p style="color:var(--text3);font-size:12px;margin-top:16px;">Last updated: March 2026 · Version 1.0</p>
+    </div>
+
+    <div class="btn-stack" style="margin-top:16px;">
+      <button class="btn btn-secondary" id="tc-btn" disabled style="opacity:.4;" onclick="go('s-ob2-privacy')">I have read and accept the Terms →</button>
+    </div>
+
+    <p class="footnote mt8">Your health data is encrypted and never sold.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ OB2b: PRIVACY ══════════════════════════════ -->
+<div class="screen" id="s-ob2-privacy">
+  <div class="status-bar"></div>
+  <div class="progress-wrap" style="padding-top:12px;">
+    <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+    <p class="step-label">Step 2 of 5 — Privacy Policy</p>
+  </div>
+  <div class="screen-inner">
+    <p class="headline mt16">Privacy Policy</p>
+    <p class="subhead mb16">How we handle your health data.</p>
+
+    <div class="tc-body" id="pp-scroll" onscroll="checkTcScroll('pp-scroll','pp-btn')">
+      <h4>Data We Collect</h4>
+      <p>Account information (name, email), glucose readings from CGM devices or manual entry, meal and nutrition logs, activity data, insulin doses, mood entries, sleep data from connected services, device information for push notifications.</p>
+      <h4>How We Use Your Data</h4>
+      <p>To display your glucose trends and patterns, generate AI-powered summaries for healthcare providers, send alerts when glucose exceeds your thresholds, provide insights on meal and activity impact on glucose levels.</p>
+      <h4>Data Storage</h4>
+      <p>All health data is stored encrypted (AES-256) in AWS data centres located in Australia (ap-southeast-2). Data is transmitted over TLS 1.3. Encryption keys are stored in AWS KMS.</p>
+      <h4>Your Rights</h4>
+      <p>Under the Australian Privacy Act 1988 and applicable APP guidelines you have the right to access, correct, and request deletion of your personal information. Contact privacy@glucolens.com.au to exercise these rights.</p>
+      <h4>Data Sharing</h4>
+      <p>We never sell your data. We share data only: with service providers under strict data processing agreements, with family/carer contacts you explicitly invite, when generating AI summaries (anonymised for API processing).</p>
+      <h4>Retention</h4>
+      <p>We retain your data while your account is active and for 12 months following account deletion, after which it is permanently purged.</p>
+      <p style="color:var(--text3);font-size:12px;margin-top:16px;">Privacy Officer: privacy@glucolens.com.au</p>
+    </div>
+
+    <div class="card mt16" style="display:flex;gap:12px;align-items:flex-start;">
+      <input type="checkbox" id="data-ack" style="margin-top:3px;accent-color:var(--accent);width:18px;height:18px;flex-shrink:0;">
+      <label for="data-ack" style="font-size:13px;color:var(--text2);cursor:pointer;">I understand my data is stored in Australian data centres and is never sold to third parties.</label>
+    </div>
+
+    <div class="btn-stack">
+      <button class="btn btn-secondary" id="pp-btn" disabled style="opacity:.4;" onclick="go('s-ob3-notif')">Accept Privacy Policy →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ OB3: NOTIFICATIONS ══════════════════════════════ -->
+<div class="screen" id="s-ob3-notif">
+  <div class="status-bar"></div>
+  <div class="progress-wrap" style="padding-top:12px;">
+    <div class="progress-track"><div class="progress-fill" style="width:60%"></div></div>
+    <p class="step-label">Step 3 of 5 — Notifications</p>
+  </div>
+  <div class="screen-inner">
+    <p class="headline mt16">Stay informed</p>
+    <p class="subhead mb16">Set up alerts so you always know what your glucose is doing.</p>
+
+    <div class="card" style="text-align:center;padding:24px 16px;">
+      <div style="font-size:40px;margin-bottom:12px;">🔔</div>
+      <p style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px;">Allow notifications</p>
+      <p class="subhead" style="text-align:center;margin-bottom:16px;">GlucoLens needs permission to alert you when glucose goes outside your target range.</p>
+      <button class="btn btn-primary" onclick="requestNotif()">Allow notifications</button>
+    </div>
+
+    <div class="card mt16">
+      <p class="card-title">Alert thresholds</p>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">Low glucose alert</div>
+          <div class="toggle-sub" id="notif-low-sub">Below 4.0 mmol/L</div>
+        </div>
+        <div class="sw on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">High glucose alert</div>
+          <div class="toggle-sub" id="notif-high-sub">Above 10.0 mmol/L</div>
+        </div>
+        <div class="sw on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">Missed meal reminders</div>
+          <div class="toggle-sub">Remind me to log meals</div>
+        </div>
+        <div class="sw on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">Insulin reminders</div>
+          <div class="toggle-sub">Remind me to log doses</div>
+        </div>
+        <div class="sw" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">Meal reminder times</p>
+      <div class="notif-time-row">
+        <span style="font-size:14px;color:var(--text);">Breakfast</span>
+        <select class="time-select"><option>7:00 AM</option><option>7:30 AM</option><option>8:00 AM</option><option>8:30 AM</option></select>
+      </div>
+      <div class="notif-time-row">
+        <span style="font-size:14px;color:var(--text);">Lunch</span>
+        <select class="time-select"><option>12:00 PM</option><option>12:30 PM</option><option>1:00 PM</option></select>
+      </div>
+      <div class="notif-time-row">
+        <span style="font-size:14px;color:var(--text);">Dinner</span>
+        <select class="time-select"><option>6:00 PM</option><option>6:30 PM</option><option>7:00 PM</option></select>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">Quiet hours</p>
+      <div class="notif-time-row">
+        <span style="font-size:14px;color:var(--text);">From</span>
+        <select class="time-select"><option>10:00 PM</option><option>10:30 PM</option><option>11:00 PM</option></select>
+      </div>
+      <div class="notif-time-row" style="border:none;">
+        <span style="font-size:14px;color:var(--text);">Until</span>
+        <select class="time-select"><option>6:00 AM</option><option>6:30 AM</option><option>7:00 AM</option></select>
+      </div>
+      <p class="footnote" style="text-align:left;color:var(--text3);font-size:11px;">Critical glucose alerts will still fire during quiet hours.</p>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="go('s-ob4-connect')">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ OB4: CONNECT SERVICES ══════════════════════════════ -->
+<div class="screen" id="s-ob4-connect">
+  <div class="status-bar"></div>
+  <div class="progress-wrap" style="padding-top:12px;">
+    <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+    <p class="step-label">Step 4 of 5 — Connect services</p>
+  </div>
+  <div class="screen-inner">
+    <p class="headline mt16">Connect your devices</p>
+    <p class="subhead mb16">Link your CGM and health apps. You can skip and connect later.</p>
+
+    <div class="card">
+      <p class="card-title">Glucose monitor (CGM)</p>
+      <div class="service-row">
+        <div class="service-icon">📡</div>
+        <div class="service-info">
+          <div class="service-name">Dexcom G7</div>
+          <div class="service-status status-connected" id="dexcom-status">● Connected</div>
+        </div>
+        <button class="btn-sm connected" id="dexcom-btn" onclick="toggleService('dexcom')">Connected</button>
+      </div>
+      <div class="service-row">
+        <div class="service-icon">🩸</div>
+        <div class="service-info">
+          <div class="service-name">LibreLink</div>
+          <div class="service-status status-skipped" id="libre-status">Not connected</div>
+        </div>
+        <button class="btn-sm" id="libre-btn" onclick="toggleService('libre')">Connect</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">Health platforms</p>
+      <div class="service-row">
+        <div class="service-icon">❤️</div>
+        <div class="service-info">
+          <div class="service-name">Apple Health</div>
+          <div class="service-status status-connected" id="apple-status">● Connected</div>
+        </div>
+        <button class="btn-sm connected" id="apple-btn" onclick="toggleService('apple')">Connected</button>
+      </div>
+      <div class="service-row">
+        <div class="service-icon">🟠</div>
+        <div class="service-info">
+          <div class="service-name">Strava</div>
+          <div class="service-status status-connected" id="strava-status">● Connected</div>
+        </div>
+        <button class="btn-sm connected" id="strava-btn" onclick="toggleService('strava')">Connected</button>
+      </div>
+      <div class="service-row">
+        <div class="service-icon">🍎</div>
+        <div class="service-info">
+          <div class="service-name">MyFitnessPal</div>
+          <div class="service-status status-skipped" id="mfp-status">Not connected</div>
+        </div>
+        <button class="btn-sm" id="mfp-btn" onclick="toggleService('mfp')">Connect</button>
+      </div>
+    </div>
+
+    <div class="btn-stack" style="margin-top:8px;">
+      <button class="btn btn-primary" onclick="go('s-ob5-first')">Continue →</button>
+      <button class="btn btn-ghost" onclick="go('s-ob5-first')">Skip all for now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ OB5: FIRST READING ══════════════════════════════ -->
+<div class="screen" id="s-ob5-first">
+  <div class="status-bar"></div>
+  <div class="progress-wrap" style="padding-top:12px;">
+    <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+    <p class="step-label">Step 5 of 5 — First reading</p>
+  </div>
+  <div class="screen-inner">
+    <p class="headline mt16">Your Dexcom is live</p>
+    <p class="subhead mb24">Receiving glucose readings in real time.</p>
+
+    <div class="card" style="text-align:center;padding:32px 16px;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px;">
+        <span class="live-dot"></span>
+        <span style="font-size:12px;color:var(--green);font-weight:500;">LIVE · Dexcom G7</span>
+      </div>
+      <div style="font-family:var(--font-display);font-size:72px;color:var(--text);line-height:1;">6.2</div>
+      <div style="font-size:16px;color:var(--text2);margin-bottom:12px;">mmol/L &nbsp;→&nbsp; stable</div>
+      <div class="in-range-badge badge-green" style="margin:0 auto;">✓ Within your target range</div>
+    </div>
+
+    <div class="card mt16">
+      <p class="card-title">Setup complete</p>
+      <div class="service-row" style="padding:8px 0;">
+        <div style="font-size:18px;">✅</div>
+        <div class="service-info"><div class="service-name">Account verified</div></div>
+      </div>
+      <div class="service-row" style="padding:8px 0;">
+        <div style="font-size:18px;">✅</div>
+        <div class="service-info"><div class="service-name">Terms & Privacy accepted</div></div>
+      </div>
+      <div class="service-row" style="padding:8px 0;">
+        <div style="font-size:18px;">✅</div>
+        <div class="service-info"><div class="service-name">Notifications configured</div></div>
+      </div>
+      <div class="service-row" style="padding:8px 0;border:none;">
+        <div style="font-size:18px;">✅</div>
+        <div class="service-info"><div class="service-name">Dexcom G7 · Apple Health · Strava connected</div></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary mt16" onclick="go('s-dashboard')">Go to my dashboard →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ DASHBOARD ══════════════════════════════ -->
+<div class="screen" id="s-dashboard">
+  <div class="status-bar"></div>
+  <div class="screen-inner" style="padding-bottom:calc(var(--safe-bot) + 70px);">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div>
+        <p class="label">Monday 30 Mar</p>
+        <p class="headline" style="font-size:20px;">Good morning 👋</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="live-dot"></span>
+        <span style="font-size:11px;color:var(--green);">Live</span>
+      </div>
+    </div>
+
+    <!-- GLUCOSE HERO -->
+    <div class="glucose-hero" style="padding:20px 0 16px;">
+      <div class="glucose-num">6.2 <span class="unit">mmol/L</span></div>
+      <div class="trend">→</div>
+      <div class="in-range-badge badge-green" style="margin:8px auto 0;">✓ In range · stable</div>
+    </div>
+
+    <!-- TIR BAR -->
+    <div class="tir-wrap">
+      <div class="tir-bar">
+        <div class="tir-segment-low" style="width:4%"></div>
+        <div class="tir-segment-in" style="width:74%"></div>
+        <div class="tir-segment-high" style="width:22%"></div>
+      </div>
+      <div class="tir-labels">
+        <span>Low 4%</span><span>In range 74%</span><span>High 22%</span>
+      </div>
+    </div>
+
+    <!-- CHART PREVIEW CARD -->
+    <div class="chart-card mb16" onclick="openChart()">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 0;">
+        <span class="label">24-hour chart</span>
+        <span style="font-size:11px;color:var(--accent2);">⟳ Rotate to expand</span>
+      </div>
+      <div class="chart-preview">
+        <canvas id="mini-chart" style="width:100%;height:100%;"></canvas>
+      </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div class="card" style="margin:0;padding:14px;">
+        <p class="label mb8">Avg glucose</p>
+        <p style="font-family:var(--font-display);font-size:26px;color:var(--text);">6.4</p>
+        <p class="caption">mmol/L · today</p>
+      </div>
+      <div class="card" style="margin:0;padding:14px;">
+        <p class="label mb8">Time in range</p>
+        <p style="font-family:var(--font-display);font-size:26px;color:var(--green);">74%</p>
+        <p class="caption">Last 30 days</p>
+      </div>
+    </div>
+
+    <!-- QUICK LOG -->
+    <p class="label mb8">Quick log</p>
+    <div class="quick-grid mb16">
+      <div class="quick-btn"><div class="q-icon">🍽️</div><div class="q-label">Meal</div></div>
+      <div class="quick-btn"><div class="q-icon">🏃</div><div class="q-label">Activity</div></div>
+      <div class="quick-btn"><div class="q-icon">💉</div><div class="q-label">Insulin</div></div>
+      <div class="quick-btn"><div class="q-icon">😊</div><div class="q-label">Mood</div></div>
+    </div>
+
+    <!-- TODAY LOG -->
+    <div class="section-hd">
+      <p class="label">Today's log</p>
+      <span style="font-size:12px;color:var(--accent2);">See all</span>
+    </div>
+    <div class="card">
+      <div class="log-item">
+        <div class="log-dot log-dot-meal">🥣</div>
+        <div class="log-info">
+          <div class="log-name">Porridge + banana</div>
+          <div class="log-meta">7:15 AM · 68g carbs · 220 cal</div>
+        </div>
+        <div class="log-impact log-up">+2.1 ↑</div>
+      </div>
+      <div class="log-item">
+        <div class="log-dot log-dot-activity">🚴</div>
+        <div class="log-info">
+          <div class="log-name">Cycling · 45 min</div>
+          <div class="log-meta">8:30 AM · 380 cal · Strava</div>
+        </div>
+        <div class="log-impact log-down">−1.4 ↓</div>
+      </div>
+      <div class="log-item" style="border:none;">
+        <div class="log-dot log-dot-insulin">💉</div>
+        <div class="log-info">
+          <div class="log-name">Insulin · 4u rapid</div>
+          <div class="log-meta">9:45 AM · NovoRapid</div>
+        </div>
+        <div class="log-impact log-down">−1.8 ↓</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="setNav('nav-home')">
+      <span class="n-icon">📊</span><span class="n-label">Dashboard</span>
+    </button>
+    <button class="nav-btn" onclick="setNav('nav-log');go('s-log-screen')">
+      <span class="n-icon" style="font-size:26px;font-weight:300;line-height:1;">＋</span><span class="n-label">Log</span>
+    </button>
+    <button class="nav-btn" onclick="openChart()">
+      <span class="n-icon">📈</span><span class="n-label">Chart</span>
+    </button>
+    <button class="nav-btn" onclick="setNav('nav-settings')">
+      <span class="n-icon">⚙️</span><span class="n-label">Settings</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ LOG SCREEN ══════════════════════════════ -->
+<div class="screen" id="s-log-screen">
+  <div class="status-bar"></div>
+  <div style="display:flex;align-items:center;padding:12px 20px 4px;gap:12px;">
+    <button class="back-btn" onclick="go('s-dashboard')">← Back</button>
+  </div>
+  <div class="screen-inner" style="padding-top:8px;">
+    <p class="headline mb16">Log an entry</p>
+    <div class="quick-grid" style="margin-bottom:20px;">
+      <div class="quick-btn"><div class="q-icon">🍽️</div><div class="q-label">Meal</div></div>
+      <div class="quick-btn"><div class="q-icon">🏃</div><div class="q-label">Activity</div></div>
+      <div class="quick-btn"><div class="q-icon">💉</div><div class="q-label">Insulin</div></div>
+      <div class="quick-btn"><div class="q-icon">😊</div><div class="q-label">Mood</div></div>
+    </div>
+    <div class="card">
+      <p class="card-title">Quick meal entry</p>
+      <input class="input mb16" type="text" placeholder="Search food or scan barcode…">
+      <div class="log-item">
+        <div class="log-dot log-dot-meal">🥣</div>
+        <div class="log-info"><div class="log-name">Porridge (oats, 60g)</div><div class="log-meta">220 cal · 38g carbs · 6g protein</div></div>
+        <button class="btn-sm">Add</button>
+      </div>
+      <div class="log-item" style="border:none;">
+        <div class="log-dot log-dot-meal">🍌</div>
+        <div class="log-info"><div class="log-name">Banana (medium)</div><div class="log-meta">89 cal · 23g carbs · 1g protein</div></div>
+        <button class="btn-sm">Add</button>
+      </div>
+    </div>
+    <button class="btn btn-primary mt16" onclick="go('s-dashboard')">Save log</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ LANDSCAPE CHART ══════════════════════════════ -->
+<div class="screen" id="s-chart">
+  <div class="status-bar" style="height:calc(var(--safe-top) + 4px);"></div>
+  <div class="chart-header">
+    <div class="chart-current">
+      <span class="chart-num">6.2</span>
+      <span class="chart-unit-small">mmol/L → stable</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="in-range-badge badge-green chart-range-pill">✓ In range</div>
+      <div class="close-chart" onclick="closeChart()">✕</div>
+    </div>
+  </div>
+  <div class="chart-controls">
+    <button class="ctrl-pill active" onclick="setChartRange('24h',this)">24h</button>
+    <button class="ctrl-pill" onclick="setChartRange('7d',this)">7 days</button>
+    <button class="ctrl-pill" onclick="setChartRange('30d',this)">30 days</button>
+    <button class="ctrl-pill" onclick="setChartRange('90d',this)">90 days</button>
+  </div>
+  <div class="chart-body">
+    <canvas id="full-chart"></canvas>
+  </div>
+  <div class="chart-legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div>Glucose</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#60a5fa;opacity:.5;width:16px;height:4px;border-radius:2px;"></div>Target range</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div>🍽 Meal</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;"></div>🚴 Activity</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>💉 Insulin</div>
+    <div class="legend-item" style="gap:3px;"><div style="width:16px;height:8px;background:rgba(59,130,246,.15);border-radius:2px;"></div>Sleep</div>
+    <div class="legend-item" style="gap:3px;"><div style="width:16px;height:8px;background:rgba(34,197,94,.12);border-radius:2px;"></div>Mood: good</div>
+  </div>
+  <div style="height:calc(var(--safe-bot) + 4px);"></div>
+</div>
+
+<!-- ══════════════════════════════ ORIENTATION LOCK OVERLAY ══════════════════════════════ -->
+<div id="orient-lock">
+  <div class="ol-icon">📱</div>
+  <div class="ol-text">Rotate your phone</div>
+  <div class="ol-sub">The glucose chart works best in landscape mode</div>
+</div>
+
+<script>
+// ── STATE ──
+let currentScreen = 's-splash';
+let chartInstance = null;
+let fullChartInstance = null;
+let unitMode = 'mmol';
+const services = { dexcom: true, libre: false, apple: true, strava: true, mfp: false };
+
+// ── NAVIGATION ──
+function go(id) {
+  const prev = document.getElementById(currentScreen);
+  const next = document.getElementById(id);
+  if (!next || currentScreen === id) return;
+  prev.classList.add('exit');
+  next.classList.add('active');
+  setTimeout(() => { prev.classList.remove('active', 'exit'); }, 340);
+  currentScreen = id;
+  if (id === 's-dashboard') { setTimeout(buildMiniChart, 100); }
+}
+
+// ── BOTTOM NAV ──
+function setNav(id) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    const ids = ['nav-home','nav-log','nav-chart','nav-settings'];
+    if (ids[i] === id) b.classList.add('active');
+  });
+}
+
+// ── CHIP SELECTION ──
+function pickChip(groupId, el) {
+  document.getElementById(groupId).querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+// ── SLIDERS ──
+function updateSlider(which, val) {
+  const num = parseFloat(val).toFixed(1);
+  const suffix = unitMode === 'mmol' ? ' mmol/L' : ' mg/dL';
+  document.getElementById(which + '-val').textContent = num + suffix;
+}
+function setUnit(u) {
+  unitMode = u;
+  document.querySelectorAll('.unit-opt').forEach(o => {
+    o.classList.toggle('active', o.textContent.toLowerCase().includes(u));
+  });
+}
+
+// ── TC SCROLL ──
+function checkTcScroll(scrollId, btnId) {
+  const el = document.getElementById(scrollId);
+  const btn = document.getElementById(btnId);
+  if (!el || !btn) return;
+  const near = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
+  if (near) { btn.disabled = false; btn.style.opacity = '1'; }
+  if (scrollId === 'pp-scroll') {
+    const ack = document.getElementById('data-ack');
+    if (ack) { ack.addEventListener('change', () => { if(ack.checked && near) { btn.disabled=false; btn.style.opacity='1'; } }); }
+  }
+}
+// Activate PP button only after both scroll and checkbox
+document.addEventListener('DOMContentLoaded', () => {
+  const ack = document.getElementById('data-ack');
+  const ppBtn = document.getElementById('pp-btn');
+  if (ack && ppBtn) {
+    ack.addEventListener('change', () => {
+      const el = document.getElementById('pp-scroll');
+      const near = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
+      if (ack.checked && near) { ppBtn.disabled=false; ppBtn.style.opacity='1'; }
+    });
+  }
+});
+
+// ── SERVICES ──
+function toggleService(svc) {
+  services[svc] = !services[svc];
+  const on = services[svc];
+  document.getElementById(svc + '-status').textContent = on ? '● Connected' : 'Not connected';
+  document.getElementById(svc + '-status').className = 'service-status ' + (on ? 'status-connected' : 'status-skipped');
+  const btn = document.getElementById(svc + '-btn');
+  btn.textContent = on ? 'Connected' : 'Connect';
+  btn.className = on ? 'btn-sm connected' : 'btn-sm';
+}
+
+// ── NOTIFICATION PERMISSION ──
+function requestNotif() {
+  if ('Notification' in window && Notification.permission !== 'granted') {
+    Notification.requestPermission();
+  }
+  document.querySelector('#s-ob3-notif .btn-primary').textContent = '✓ Notifications enabled';
+  document.querySelector('#s-ob3-notif .btn-primary').style.background = 'var(--green)';
+}
+
+// ── PASSWORD STRENGTH ──
+function checkStrength(pw) {
+  let s = 0;
+  if (pw.length >= 8) s++;
+  if (/[A-Z]/.test(pw)) s++;
+  if (/[0-9]/.test(pw)) s++;
+  if (/[^A-Za-z0-9]/.test(pw)) s++;
+  const fill = document.getElementById('str-fill');
+  const lbl = document.getElementById('str-label');
+  const cols = ['','#ef4444','#f59e0b','#3b82f6','#22c55e'];
+  const labels = ['','Weak','Fair','Good','Strong'];
+  fill.style.width = (s * 25) + '%';
+  fill.style.background = cols[s] || '#ef4444';
+  lbl.textContent = labels[s] || '';
+  lbl.style.color = cols[s] || 'var(--text3)';
+}
+
+// ── MINI CHART (portrait dashboard) ──
+function buildMiniChart() {
+  const canvas = document.getElementById('mini-chart');
+  if (!canvas) return;
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  const ctx = canvas.getContext('2d');
+  const labels = Array.from({length:24}, (_,i) => i%6===0 ? i+'h' : '');
+  const data = [6.8,6.5,3.6,4.2,5.1,6.0,7.2,8.4,8.1,7.6,6.9,6.5,5.8,6.0,6.8,7.2,6.4,5.9,6.1,6.5,6.3,6.1,6.2,6.2];
+  const grad = ctx.createLinearGradient(0,0,0,80);
+  grad.addColorStop(0,'rgba(59,130,246,0.35)');
+  grad.addColorStop(1,'rgba(59,130,246,0)');
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        borderColor: '#3b82f6',
+        borderWidth: 2,
+        fill: true,
+        backgroundColor: grad,
+        tension: 0.45,
+        pointRadius: 0,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: {display:false}, tooltip: {enabled:false} },
+      scales: {
+        x: { display:false },
+        y: {
+          display: true, min: 2.5, max: 11,
+          grid: { color:'rgba(255,255,255,0.05)', drawBorder:false },
+          ticks: { color:'rgba(255,255,255,0.2)', font:{size:9}, maxTicksLimit:4 },
+          border: { display:false }
+        }
+      }
+    }
+  });
+}
+
+// ── FULL LANDSCAPE CHART ──
+function buildFullChart() {
+  const canvas = document.getElementById('full-chart');
+  if (!canvas) return;
+  if (fullChartInstance) { fullChartInstance.destroy(); fullChartInstance = null; }
+
+  const ctx = canvas.getContext('2d');
+  const labels = Array.from({length:24}, (_,i) => {
+    const h = i; const ampm = h < 12 ? 'am' : 'pm'; const h12 = h === 0 ? 12 : h > 12 ? h-12 : h;
+    return h%3===0 ? h12+ampm : '';
+  });
+  const glucose = [6.8,6.5,3.6,4.2,5.1,6.0,7.2,8.4,8.1,7.6,6.9,6.5,5.8,6.0,6.8,7.2,6.4,5.9,6.1,6.5,6.3,6.1,6.2,6.2];
+
+  // Annotations as scatter points
+  const mealPts = glucose.map((v,i) => [5,8,13,19].includes(i) ? v : null);
+  const actPts = glucose.map((v,i) => [8,15].includes(i) ? v : null);
+  const insulinPts = glucose.map((v,i) => [9,20].includes(i) ? v : null);
+
+  // Sleep region: indices 0-6 and 21-23
+  const sleepPlugin = {
+    id: 'sleepBands',
+    beforeDraw(chart) {
+      const {ctx, chartArea: {top,bottom}, scales: {x}} = chart;
+      [[0,6],[21,23]].forEach(([s,e]) => {
+        const x1 = x.getPixelForValue(s); const x2 = x.getPixelForValue(e);
+        ctx.save();
+        ctx.fillStyle = 'rgba(59,130,246,0.1)';
+        ctx.fillRect(x1, top, x2-x1, bottom-top);
+        ctx.restore();
+      });
+    }
+  };
+  // Mood wash regions
+  const moodPlugin = {
+    id: 'moodBands',
+    beforeDraw(chart) {
+      const {ctx, chartArea: {top,bottom}, scales: {x}} = chart;
+      const bands = [
+        {from:7,to:10,color:'rgba(34,197,94,0.07)'},
+        {from:10,to:15,color:'rgba(245,158,11,0.07)'},
+        {from:15,to:21,color:'rgba(34,197,94,0.07)'},
+      ];
+      bands.forEach(b => {
+        const x1 = x.getPixelForValue(b.from); const x2 = x.getPixelForValue(b.to);
+        ctx.save(); ctx.fillStyle = b.color;
+        ctx.fillRect(x1, top, x2-x1, bottom-top);
+        ctx.restore();
+      });
+    }
+  };
+
+  const grad = ctx.createLinearGradient(0,0,0,300);
+  grad.addColorStop(0,'rgba(59,130,246,0.3)');
+  grad.addColorStop(1,'rgba(59,130,246,0)');
+
+  fullChartInstance = new Chart(ctx, {
+    type: 'line',
+    plugins: [sleepPlugin, moodPlugin],
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Glucose',
+          data: glucose,
+          borderColor: '#60a5fa',
+          borderWidth: 2.5,
+          fill: true,
+          backgroundColor: grad,
+          tension: 0.45,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#60a5fa',
+        },
+        {
+          label: 'Meals',
+          data: mealPts,
+          type: 'scatter',
+          pointStyle: 'triangle',
+          pointRadius: 8,
+          pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5,
+          showLine: false,
+        },
+        {
+          label: 'Activity',
+          data: actPts,
+          type: 'scatter',
+          pointStyle: 'rectRot',
+          pointRadius: 7,
+          pointBackgroundColor: '#22c55e',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5,
+          showLine: false,
+        },
+        {
+          label: 'Insulin',
+          data: insulinPts,
+          type: 'scatter',
+          pointStyle: 'circle',
+          pointRadius: 6,
+          pointBackgroundColor: '#ef4444',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5,
+          showLine: false,
+        },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 600 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(17,24,39,0.95)',
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1,
+          titleColor: '#f0f4ff',
+          bodyColor: '#8899b8',
+          padding: 10,
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.dataset.label === 'Glucose') return `  ${ctx.parsed.y.toFixed(1)} mmol/L`;
+              if (ctx.parsed.y !== null) return `  ${ctx.dataset.label}`;
+              return null;
+            }
+          }
+        },
+        annotation: {}
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+          ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 } },
+          border: { display: false }
+        },
+        y: {
+          min: 2, max: 12,
+          grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+          ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 }, callback: v => v.toFixed(0) },
+          border: { display: false }
+        }
+      }
+    }
+  });
+
+  // Draw target range band manually
+  const meta = fullChartInstance.getDatasetMeta(0);
+  fullChartInstance.options.plugins.beforeDraw = () => {};
+}
+
+function setChartRange(r, el) {
+  document.querySelectorAll('.ctrl-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  // In production: re-fetch/re-render data for range. Here just re-draw.
+  buildFullChart();
+}
+
+// ── CHART OPEN / CLOSE ──
+function openChart() {
+  const isLandscape = window.innerWidth > window.innerHeight;
+  if (!isLandscape) {
+    showOrientLock();
+    return;
+  }
+  actuallyOpenChart();
+}
+
+function actuallyOpenChart() {
+  const prev = document.getElementById(currentScreen);
+  const chartScreen = document.getElementById('s-chart');
+  prev.classList.add('exit');
+  chartScreen.style.display = 'flex';
+  setTimeout(() => { chartScreen.classList.add('active'); }, 10);
+  setTimeout(() => { prev.classList.remove('active','exit'); buildFullChart(); }, 50);
+  currentScreen = 's-chart';
+}
+
+function closeChart() {
+  const chartScreen = document.getElementById('s-chart');
+  chartScreen.classList.remove('active');
+  setTimeout(() => { chartScreen.style.display = 'none'; }, 340);
+  currentScreen = 's-dashboard';
+  document.getElementById('s-dashboard').classList.add('active');
+  if (fullChartInstance) { fullChartInstance.destroy(); fullChartInstance = null; }
+}
+
+// ── ORIENTATION LOCK ──
+let orientLockTimer = null;
+function showOrientLock() {
+  const lock = document.getElementById('orient-lock');
+  lock.style.display = 'flex';
+  clearTimeout(orientLockTimer);
+}
+
+function hideOrientLock() {
+  document.getElementById('orient-lock').style.display = 'none';
+}
+
+window.addEventListener('resize', () => {
+  const isLandscape = window.innerWidth > window.innerHeight;
+  if (currentScreen === 's-chart') {
+    // If somehow rotated back to portrait while chart is open, show lock
+    if (!isLandscape) {
+      document.getElementById('orient-lock').style.display = 'flex';
+    } else {
+      hideOrientLock();
+      setTimeout(buildFullChart, 200);
+    }
+  } else {
+    // If we're on the orient lock prompt and user rotates to landscape, open chart
+    if (isLandscape && document.getElementById('orient-lock').style.display === 'flex') {
+      hideOrientLock();
+      actuallyOpenChart();
+    }
+  }
+});
+
+// ── SPLASH AUTO-ADVANCE ──
+setTimeout(() => { go('s-welcome'); }, 2000);
+
+// ── CANVAS SIZING (landscape chart) ──
+function resizeFullChart() {
+  const canvas = document.getElementById('full-chart');
+  if (!canvas) return;
+  const parent = canvas.parentElement;
+  canvas.style.width = parent.offsetWidth + 'px';
+  canvas.style.height = parent.offsetHeight + 'px';
+}
+window.addEventListener('resize', () => {
+  if (currentScreen === 's-chart') { setTimeout(resizeFullChart, 100); }
+});
+</script>
+</body>
+</html>
