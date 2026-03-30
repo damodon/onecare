@@ -772,7 +772,7 @@ input[type=range]::-webkit-slider-thumb {
       <h4>3. Data Collection</h4>
       <p>We collect health and activity data you provide or import, including glucose readings, meal logs, insulin doses, activity data, and mood entries. This data is stored encrypted in Australian data centres. We do not sell your health data to third parties.</p>
       <h4>4. Third-Party Integrations</h4>
-      <p>Connecting to Dexcom, Apple Health, Strava, or MyFitnessPal is subject to their respective terms. GlucoLens accesses only the data scopes you explicitly authorise.</p>
+      <p>Connecting to Abbott, Dexcom, Medtronic, Apple Health, Strava, or MyFitnessPal is subject to their respective terms. GlucoLens accesses only the data scopes you explicitly authorise.</p>
       <h4>5. Notifications & Alerts</h4>
       <p>Glucose alerts are provided as a convenience feature only. Do not rely exclusively on GlucoLens alerts for hypoglycaemia management. Always carry appropriate hypoglycaemia treatment.</p>
       <h4>6. Limitation of Liability</h4>
@@ -927,6 +927,14 @@ input[type=range]::-webkit-slider-thumb {
     <div class="card">
       <p class="card-title">Glucose monitor (CGM)</p>
       <div class="service-row">
+        <div class="service-icon">🔵</div>
+        <div class="service-info">
+          <div class="service-name">Abbott (Libre 3)</div>
+          <div class="service-status status-skipped" id="abbott-status">Not connected</div>
+        </div>
+        <button class="btn-sm" id="abbott-btn" onclick="toggleService('abbott')">Connect</button>
+      </div>
+      <div class="service-row">
         <div class="service-icon">📡</div>
         <div class="service-info">
           <div class="service-name">Dexcom G7</div>
@@ -935,12 +943,12 @@ input[type=range]::-webkit-slider-thumb {
         <button class="btn-sm connected" id="dexcom-btn" onclick="toggleService('dexcom')">Connected</button>
       </div>
       <div class="service-row">
-        <div class="service-icon">🩸</div>
+        <div class="service-icon">🟣</div>
         <div class="service-info">
-          <div class="service-name">LibreLink</div>
-          <div class="service-status status-skipped" id="libre-status">Not connected</div>
+          <div class="service-name">Medtronic Guardian</div>
+          <div class="service-status status-skipped" id="medtronic-status">Not connected</div>
         </div>
-        <button class="btn-sm" id="libre-btn" onclick="toggleService('libre')">Connect</button>
+        <button class="btn-sm" id="medtronic-btn" onclick="toggleService('medtronic')">Connect</button>
       </div>
     </div>
 
@@ -987,7 +995,7 @@ input[type=range]::-webkit-slider-thumb {
     <p class="step-label">Step 5 of 5 — First reading</p>
   </div>
   <div class="screen-inner">
-    <p class="headline mt16">Your Dexcom is live</p>
+    <p class="headline mt16">Your Dexcom G7 is live</p>
     <p class="subhead mb24">Receiving glucose readings in real time.</p>
 
     <div class="card" style="text-align:center;padding:32px 16px;">
@@ -1166,7 +1174,7 @@ input[type=range]::-webkit-slider-thumb {
       <div class="toggle-row" style="cursor:pointer;" onclick="">
         <div class="toggle-info">
           <div class="toggle-name">Damian Mead</div>
-          <div class="toggle-sub">damian@example.com</div>
+          <div class="toggle-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c6a2a7abafa7a886a3bea7abb6aaa3e8a5a9ab">[email&#160;protected]</a></div>
         </div>
         <span style="color:var(--text3);font-size:18px;">›</span>
       </div>
@@ -1194,6 +1202,20 @@ input[type=range]::-webkit-slider-thumb {
           <div class="toggle-sub" style="color:var(--green);">● Connected</div>
         </div>
         <div class="sw on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">Abbott (Libre 3)</div>
+          <div class="toggle-sub">Not connected</div>
+        </div>
+        <div class="sw" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-name">Medtronic Guardian</div>
+          <div class="toggle-sub">Not connected</div>
+        </div>
+        <div class="sw" onclick="this.classList.toggle('on')"></div>
       </div>
       <div class="toggle-row">
         <div class="toggle-info">
@@ -1337,13 +1359,15 @@ input[type=range]::-webkit-slider-thumb {
   <div style="display:flex;align-items:center;padding:12px 20px 4px;">
     <button class="back-btn" onclick="go('s-log-screen')">← Back</button>
   </div>
-  <div class="screen-inner" style="padding-top:8px;display:flex;flex-direction:column;align-items:center;">
+  <div class="screen-inner" style="padding-top:8px;">
     <p class="headline" style="text-align:center;margin-bottom:6px;">Voice log</p>
     <p class="subhead" style="text-align:center;margin-bottom:32px;">Speak naturally — GlucoLens will parse your meal, mood, or activity.</p>
 
     <!-- MIC BUTTON -->
-    <div id="mic-btn" onclick="toggleVoice()" style="width:100px;height:100px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:42px;cursor:pointer;margin-bottom:24px;transition:transform .15s;box-shadow:0 0 0 0 rgba(59,130,246,.4);" >🎙️</div>
+    <div style="display:flex;flex-direction:column;align-items:center;">
+    <div id="mic-btn" onclick="toggleVoice()" style="width:100px;height:100px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:42px;cursor:pointer;margin-bottom:24px;transition:transform .15s;box-shadow:0 0 0 0 rgba(59,130,246,.4);">🎙️</div>
     <p id="voice-status" style="font-size:14px;color:var(--text2);margin-bottom:20px;">Tap to start recording</p>
+    </div>
 
     <!-- TRANSCRIPT BOX -->
     <div id="voice-transcript-wrap" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;min-height:80px;margin-bottom:16px;display:none;">
@@ -1747,13 +1771,13 @@ input[type=range]::-webkit-slider-thumb {
   <div class="ol-sub">The glucose chart works best in landscape mode</div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── STATE ──
 let currentScreen = 's-splash';
 let chartInstance = null;
 let fullChartInstance = null;
 let unitMode = 'mmol';
-const services = { dexcom: true, libre: false, apple: true, strava: true, mfp: false };
+const services = { abbott: false, dexcom: true, medtronic: false, apple: true, strava: true, mfp: false };
 
 // ── NAVIGATION ──
 function go(id) {
@@ -1765,6 +1789,7 @@ function go(id) {
   setTimeout(() => { prev.classList.remove('active', 'exit'); }, 340);
   currentScreen = id;
   if (id === 's-dashboard') { setTimeout(buildMiniChart, 100); }
+  if (id === 's-log-voice') { resetVoiceScreen(); }
 }
 
 // ── BOTTOM NAV ──
@@ -2088,32 +2113,33 @@ function closeChart() {
 
 // ── ORIENTATION LOCK ──
 let orientLockTimer = null;
+let pendingChart = false; // true while user has requested chart but is in portrait
+
 function showOrientLock() {
-  const lock = document.getElementById('orient-lock');
-  lock.style.display = 'flex';
+  pendingChart = true;
+  document.getElementById('orient-lock').style.display = 'flex';
   clearTimeout(orientLockTimer);
 }
 
 function hideOrientLock() {
+  pendingChart = false;
   document.getElementById('orient-lock').style.display = 'none';
 }
 
 window.addEventListener('resize', () => {
   const isLandscape = window.innerWidth > window.innerHeight;
   if (currentScreen === 's-chart') {
-    // If somehow rotated back to portrait while chart is open, show lock
+    // Rotated back to portrait while chart is open — show lock but keep chart loaded
     if (!isLandscape) {
       document.getElementById('orient-lock').style.display = 'flex';
     } else {
-      hideOrientLock();
+      document.getElementById('orient-lock').style.display = 'none';
       setTimeout(buildFullChart, 200);
     }
-  } else {
-    // If we're on the orient lock prompt and user rotates to landscape, open chart
-    if (isLandscape && document.getElementById('orient-lock').style.display === 'flex') {
-      hideOrientLock();
-      actuallyOpenChart();
-    }
+  } else if (pendingChart && isLandscape) {
+    // User rotated to landscape after tapping chart — now open it
+    hideOrientLock();
+    actuallyOpenChart();
   }
 });
 
@@ -2189,6 +2215,21 @@ function filterFood(val) {
 // ── VOICE SIMULATION ──
 let voiceActive = false;
 let voiceTimer = null;
+function resetVoiceScreen() {
+  voiceActive = false;
+  clearTimeout(voiceTimer);
+  const btn = document.getElementById('mic-btn');
+  const status = document.getElementById('voice-status');
+  if (btn) { btn.textContent = '🎙️'; btn.style.background = 'var(--accent)'; btn.style.transform = ''; btn.style.boxShadow = ''; }
+  if (status) { status.textContent = 'Tap to start recording'; status.style.color = 'var(--text2)'; }
+  const tw = document.getElementById('voice-transcript-wrap');
+  const vr = document.getElementById('voice-result');
+  const ve = document.getElementById('voice-examples');
+  if (tw) tw.style.display = 'none';
+  if (vr) vr.style.display = 'none';
+  if (ve) ve.style.display = 'block';
+}
+
 function toggleVoice() {
   const btn = document.getElementById('mic-btn');
   const status = document.getElementById('voice-status');
@@ -2271,12 +2312,4 @@ function resizeFullChart() {
   const canvas = document.getElementById('full-chart');
   if (!canvas) return;
   const parent = canvas.parentElement;
-  canvas.style.width = parent.offsetWidth + 'px';
-  canvas.style.height = parent.offsetHeight + 'px';
-}
-window.addEventListener('resize', () => {
-  if (currentScreen === 's-chart') { setTimeout(resizeFullChart, 100); }
-});
-</script>
-</body>
-</html>
+  canvas.style.widt
