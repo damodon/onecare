@@ -1174,7 +1174,7 @@ input[type=range]::-webkit-slider-thumb {
       <div class="toggle-row" style="cursor:pointer;" onclick="">
         <div class="toggle-info">
           <div class="toggle-name">Damian Mead</div>
-          <div class="toggle-sub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c6a2a7abafa7a886a3bea7abb6aaa3e8a5a9ab">[email&#160;protected]</a></div>
+          <div class="toggle-sub">damian&#64;example&#46;com</div>
         </div>
         <span style="color:var(--text3);font-size:18px;">›</span>
       </div>
@@ -1771,7 +1771,7 @@ input[type=range]::-webkit-slider-thumb {
   <div class="ol-sub">The glucose chart works best in landscape mode</div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── STATE ──
 let currentScreen = 's-splash';
 let chartInstance = null;
@@ -1884,6 +1884,7 @@ function checkStrength(pw) {
 
 // ── MINI CHART (portrait dashboard) ──
 function buildMiniChart() {
+  if (typeof Chart === 'undefined') return;
   const canvas = document.getElementById('mini-chart');
   if (!canvas) return;
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
@@ -1925,6 +1926,7 @@ function buildMiniChart() {
 
 // ── FULL LANDSCAPE CHART ──
 function buildFullChart() {
+  if (typeof Chart === 'undefined') return;
   const canvas = document.getElementById('full-chart');
   if (!canvas) return;
   if (fullChartInstance) { fullChartInstance.destroy(); fullChartInstance = null; }
@@ -2295,8 +2297,8 @@ function selectMoodLog(el, emoji, label) {
 }
 
 // ── SPLASH AUTO-ADVANCE ──
-// Direct DOM manipulation — bypasses go() to guarantee the transition fires
 function splashAdvance() {
+  if (currentScreen !== 's-splash') return;
   const splash = document.getElementById('s-splash');
   const welcome = document.getElementById('s-welcome');
   if (!splash || !welcome) return;
@@ -2307,9 +2309,18 @@ function splashAdvance() {
 }
 setTimeout(splashAdvance, 1800);
 
+
 // ── CANVAS SIZING (landscape chart) ──
 function resizeFullChart() {
   const canvas = document.getElementById('full-chart');
   if (!canvas) return;
   const parent = canvas.parentElement;
-  canvas.style.widt
+  canvas.style.width = parent.offsetWidth + 'px';
+  canvas.style.height = parent.offsetHeight + 'px';
+}
+window.addEventListener('resize', () => {
+  if (currentScreen === 's-chart') { setTimeout(resizeFullChart, 100); }
+});
+</script>
+</body>
+</html>
