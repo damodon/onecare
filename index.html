@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="GlucoLens">
-<meta name="theme-color" content="#0a0f1a">
+<meta name="theme-color" content="#f4f6fb">
 <title>GlucoLens</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -567,7 +567,7 @@ input[type=range]::-webkit-slider-thumb {
 .footnote { font-size: 11px; color: var(--text3); text-align: center; margin-top: 8px; }
 </style>
 </head>
-<body>
+<body class="light">
 <div id="app">
 
 <!-- ══════════════════════════════ SPLASH ══════════════════════════════ -->
@@ -736,9 +736,9 @@ input[type=range]::-webkit-slider-thumb {
       <div class="slider-group">
         <div class="slider-header">
           <span class="lbl">Hypo alert below</span>
-          <span class="val" id="low-val">4.0 mmol/L</span>
+          <span class="val" id="low-val">5.0 mmol/L</span>
         </div>
-        <input type="range" min="2" max="6" step="0.1" value="4.0" id="low-slider" oninput="updateSlider('low',this.value)">
+        <input type="range" min="2" max="6" step="0.1" value="5.0" id="low-slider" oninput="updateSlider('low',this.value)">
       </div>
       <div class="slider-group">
         <div class="slider-header">
@@ -753,16 +753,16 @@ input[type=range]::-webkit-slider-thumb {
   </div>
 </div>
 
-<!-- ══════════════════════════════ OB2: T&C ══════════════════════════════ -->
+<!-- ══════════════════════════════ OB2: T&C (combined) ══════════════════════════════ -->
 <div class="screen" id="s-ob2-tc">
   <div class="status-bar"></div>
   <div class="progress-wrap" style="padding-top:12px;">
     <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
-    <p class="step-label">Step 2 of 5 — Terms & Privacy</p>
+    <p class="step-label">Step 2 of 4 — Terms & Privacy</p>
   </div>
   <div class="screen-inner">
     <p class="headline mt16">Terms & Conditions</p>
-    <p class="subhead mb16">Please read and scroll to the bottom to accept.</p>
+    <p class="subhead mb16">Please scroll to the bottom to accept. Our <span style="color:var(--accent2);cursor:pointer;" onclick="document.getElementById('privacy-section').scrollIntoView({behavior:'smooth'})">Privacy Policy</span> is included below.</p>
 
     <div class="tc-body" id="tc-scroll" onscroll="checkTcScroll('tc-scroll','tc-btn')">
       <h4>1. Acceptance of Terms</h4>
@@ -781,52 +781,34 @@ input[type=range]::-webkit-slider-thumb {
       <p>These Terms are governed by the laws of Queensland, Australia. Disputes shall be subject to the exclusive jurisdiction of the courts of Queensland.</p>
       <h4>8. Changes</h4>
       <p>We may update these Terms. Continued use of the Service after changes constitutes acceptance. We will notify you of material changes by email.</p>
-      <p style="color:var(--text3);font-size:12px;margin-top:16px;">Last updated: March 2026 · Version 1.0</p>
-    </div>
 
-    <div class="btn-stack" style="margin-top:16px;">
-      <button class="btn btn-secondary" id="tc-btn" disabled style="opacity:.4;" onclick="go('s-ob2-privacy')">I have read and accept the Terms →</button>
-    </div>
-
-    <p class="footnote mt8">Your health data is encrypted and never sold.</p>
-  </div>
-</div>
-
-<!-- ══════════════════════════════ OB2b: PRIVACY ══════════════════════════════ -->
-<div class="screen" id="s-ob2-privacy">
-  <div class="status-bar"></div>
-  <div class="progress-wrap" style="padding-top:12px;">
-    <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
-    <p class="step-label">Step 2 of 5 — Privacy Policy</p>
-  </div>
-  <div class="screen-inner">
-    <p class="headline mt16">Privacy Policy</p>
-    <p class="subhead mb16">How we handle your health data.</p>
-
-    <div class="tc-body" id="pp-scroll" onscroll="checkTcScroll('pp-scroll','pp-btn')">
-      <h4>Data We Collect</h4>
-      <p>Account information (name, email), glucose readings from CGM devices or manual entry, meal and nutrition logs, activity data, insulin doses, mood entries, sleep data from connected services, device information for push notifications.</p>
-      <h4>How We Use Your Data</h4>
-      <p>To display your glucose trends and patterns, generate AI-powered summaries for healthcare providers, send alerts when glucose exceeds your thresholds, provide insights on meal and activity impact on glucose levels.</p>
-      <h4>Data Storage</h4>
-      <p>All health data is stored encrypted (AES-256) in AWS data centres located in Australia (ap-southeast-2). Data is transmitted over TLS 1.3. Encryption keys are stored in AWS KMS.</p>
-      <h4>Your Rights</h4>
-      <p>Under the Australian Privacy Act 1988 and applicable APP guidelines you have the right to access, correct, and request deletion of your personal information. Contact privacy&#64;glucolens&#46;com&#46;au to exercise these rights.</p>
-      <h4>Data Sharing</h4>
-      <p>We never sell your data. We share data only: with service providers under strict data processing agreements, with family/carer contacts you explicitly invite, when generating AI summaries (anonymised for API processing).</p>
-      <h4>Retention</h4>
-      <p>We retain your data while your account is active and for 12 months following account deletion, after which it is permanently purged.</p>
-      <p style="color:var(--text3);font-size:12px;margin-top:16px;">Privacy Officer: privacy&#64;glucolens&#46;com&#46;au</p>
+      <div id="privacy-section" style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);">
+        <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">Privacy Policy</p>
+        <h4>Data We Collect</h4>
+        <p>Account information (name, email), glucose readings from CGM devices or manual entry, meal and nutrition logs, activity data, insulin doses, mood entries, sleep data from connected services, device information for push notifications.</p>
+        <h4>How We Use Your Data</h4>
+        <p>To display your glucose trends and patterns, generate AI-powered summaries for healthcare providers, send alerts when glucose exceeds your thresholds, provide insights on meal and activity impact on glucose levels.</p>
+        <h4>Data Storage</h4>
+        <p>All health data is stored encrypted (AES-256) in AWS data centres located in Australia (ap-southeast-2). Data is transmitted over TLS 1.3. Encryption keys are stored in AWS KMS.</p>
+        <h4>Your Rights</h4>
+        <p>Under the Australian Privacy Act 1988 and applicable APP guidelines you have the right to access, correct, and request deletion of your personal information. Contact privacy&#64;glucolens&#46;com&#46;au to exercise these rights.</p>
+        <h4>Data Sharing</h4>
+        <p>We never sell your data. We share data only with service providers under strict data processing agreements, with family/carer contacts you explicitly invite, and when generating AI summaries (anonymised for API processing).</p>
+        <h4>Retention</h4>
+        <p>We retain your data while your account is active and for 12 months following account deletion, after which it is permanently purged.</p>
+        <p style="color:var(--text3);font-size:12px;margin-top:12px;">Privacy Officer: privacy&#64;glucolens&#46;com&#46;au · Last updated: March 2026</p>
+      </div>
     </div>
 
     <div class="card mt16" style="display:flex;gap:12px;align-items:flex-start;">
-      <input type="checkbox" id="data-ack" style="margin-top:3px;accent-color:var(--accent);width:18px;height:18px;flex-shrink:0;">
+      <input type="checkbox" id="data-ack" style="margin-top:3px;accent-color:var(--accent);width:18px;height:18px;flex-shrink:0;" onchange="checkAck()">
       <label for="data-ack" style="font-size:13px;color:var(--text2);cursor:pointer;">I understand my data is stored in Australian data centres and is never sold to third parties.</label>
     </div>
 
-    <div class="btn-stack">
-      <button class="btn btn-secondary" id="pp-btn" disabled style="opacity:.4;" onclick="go('s-ob3-notif')">Accept Privacy Policy →</button>
+    <div class="btn-stack" style="margin-top:12px;">
+      <button class="btn btn-secondary" id="tc-btn" disabled style="opacity:.4;" onclick="go('s-ob3-notif')">I accept the Terms & Privacy Policy →</button>
     </div>
+    <p class="footnote mt8">Your health data is encrypted and never sold.</p>
   </div>
 </div>
 
@@ -835,7 +817,7 @@ input[type=range]::-webkit-slider-thumb {
   <div class="status-bar"></div>
   <div class="progress-wrap" style="padding-top:12px;">
     <div class="progress-track"><div class="progress-fill" style="width:60%"></div></div>
-    <p class="step-label">Step 3 of 5 — Notifications</p>
+    <p class="step-label">Step 3 of 4 — Notifications</p>
   </div>
   <div class="screen-inner">
     <p class="headline mt16">Stay informed</p>
@@ -917,22 +899,17 @@ input[type=range]::-webkit-slider-thumb {
 <div class="screen" id="s-ob4-connect">
   <div class="status-bar"></div>
   <div class="progress-wrap" style="padding-top:12px;">
-    <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
-    <p class="step-label">Step 4 of 5 — Connect services</p>
+    <div class="progress-track"><div class="progress-fill" style="width:75%"></div></div>
+    <p class="step-label">Step 4 of 4 — Connect services</p>
   </div>
   <div class="screen-inner">
     <p class="headline mt16">Connect your devices</p>
-    <p class="subhead mb16">Link your CGM and health apps. You can skip and connect later.</p>
+    <p class="subhead mb16">Connect Dexcom and Apple Health to get started. Everything else can wait.</p>
 
     <div class="card">
-      <p class="card-title">Glucose monitor (CGM)</p>
-      <div class="service-row">
-        <div class="service-icon">🔵</div>
-        <div class="service-info">
-          <div class="service-name">Abbott (Libre 3)</div>
-          <div class="service-status status-skipped" id="abbott-status">Not connected</div>
-        </div>
-        <button class="btn-sm" id="abbott-btn" onclick="toggleService('abbott')">Connect</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <p class="card-title" style="margin:0;">Essential</p>
+        <span style="font-size:11px;color:var(--accent2);">Required for live readings</span>
       </div>
       <div class="service-row">
         <div class="service-icon">📡</div>
@@ -943,24 +920,35 @@ input[type=range]::-webkit-slider-thumb {
         <button class="btn-sm connected" id="dexcom-btn" onclick="toggleService('dexcom')">Connected</button>
       </div>
       <div class="service-row">
-        <div class="service-icon">🟣</div>
-        <div class="service-info">
-          <div class="service-name">Medtronic Guardian</div>
-          <div class="service-status status-skipped" id="medtronic-status">Not connected</div>
-        </div>
-        <button class="btn-sm" id="medtronic-btn" onclick="toggleService('medtronic')">Connect</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <p class="card-title">Health platforms</p>
-      <div class="service-row">
         <div class="service-icon">❤️</div>
         <div class="service-info">
           <div class="service-name">Apple Health</div>
           <div class="service-status status-connected" id="apple-status">● Connected</div>
         </div>
         <button class="btn-sm connected" id="apple-btn" onclick="toggleService('apple')">Connected</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <p class="card-title" style="margin:0;">Optional — add later</p>
+        <span style="font-size:11px;color:var(--text3);">Nag reminder on next login</span>
+      </div>
+      <div class="service-row">
+        <div class="service-icon">🔵</div>
+        <div class="service-info">
+          <div class="service-name">Abbott (Libre 3)</div>
+          <div class="service-status status-skipped" id="abbott-status">Not connected</div>
+        </div>
+        <button class="btn-sm" id="abbott-btn" onclick="toggleService('abbott')">Connect</button>
+      </div>
+      <div class="service-row">
+        <div class="service-icon">🟣</div>
+        <div class="service-info">
+          <div class="service-name">Medtronic Guardian</div>
+          <div class="service-status status-skipped" id="medtronic-status">Not connected</div>
+        </div>
+        <button class="btn-sm" id="medtronic-btn" onclick="toggleService('medtronic')">Connect</button>
       </div>
       <div class="service-row">
         <div class="service-icon">🟠</div>
@@ -1048,60 +1036,98 @@ input[type=range]::-webkit-slider-thumb {
       </div>
     </div>
 
-    <!-- GLUCOSE HERO -->
-    <div class="glucose-hero" style="padding:20px 0 16px;">
-      <div class="glucose-num">6.2 <span class="unit">mmol/L</span></div>
-      <div class="trend">→</div>
-      <div class="in-range-badge badge-green" style="margin:8px auto 0;">✓ In range · stable</div>
+    <!-- 1. COMBINED STATS CARD: live + avg + today + in range + hypos -->
+    <div class="card" style="margin-bottom:12px;">
+      <!-- Top row: live vs avg 30d -->
+      <div style="display:flex;align-items:stretch;gap:0;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+        <div style="flex:1;padding-right:14px;border-right:1px solid var(--border);">
+          <p class="label mb8">Live glucose</p>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <span style="font-family:var(--font-display);font-size:38px;color:var(--text);line-height:1;">6.2</span>
+            <span style="font-size:12px;color:var(--text2);">mmol/L</span>
+            <span style="font-size:18px;">→</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+            <span class="live-dot"></span>
+            <span class="in-range-badge badge-green" style="margin:0;padding:2px 8px;font-size:10px;">In range</span>
+          </div>
+        </div>
+        <div style="flex:1;padding-left:14px;">
+          <p class="label mb8">Avg · 30 days</p>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <span style="font-family:var(--font-display);font-size:38px;color:var(--text2);line-height:1;">6.4</span>
+            <span style="font-size:12px;color:var(--text2);">mmol/L</span>
+          </div>
+          <div style="margin-top:6px;">
+            <span style="font-size:11px;color:var(--green);font-weight:500;">74% time in range</span>
+          </div>
+        </div>
+      </div>
+      <!-- Bottom row: today avg / in range / hypos -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;">
+        <div style="text-align:center;padding:4px 0;">
+          <p class="label mb8">Avg · today</p>
+          <p style="font-family:var(--font-display);font-size:20px;color:var(--text);">6.4</p>
+          <p style="font-size:10px;color:var(--text3);">mmol/L</p>
+        </div>
+        <div style="text-align:center;padding:4px 0;border-left:1px solid var(--border);border-right:1px solid var(--border);">
+          <p class="label mb8">In range</p>
+          <p style="font-family:var(--font-display);font-size:20px;color:var(--green);">74%</p>
+          <p style="font-size:10px;color:var(--text3);">30 days</p>
+        </div>
+        <div style="text-align:center;padding:4px 0;">
+          <p class="label mb8">Hypos</p>
+          <p style="font-family:var(--font-display);font-size:20px;color:var(--amber);">2</p>
+          <p style="font-size:10px;color:var(--text3);">this week</p>
+        </div>
+      </div>
+      <!-- TIR bar -->
+      <div style="margin-top:10px;">
+        <div class="tir-bar"><div class="tir-segment-low" style="width:4%"></div><div class="tir-segment-in" style="width:74%"></div><div class="tir-segment-high" style="width:22%"></div></div>
+        <div class="tir-labels"><span>Low 4%</span><span>In range 74%</span><span>High 22%</span></div>
+      </div>
     </div>
 
-    <!-- TIR BAR -->
-    <div class="tir-wrap">
-      <div class="tir-bar">
-        <div class="tir-segment-low" style="width:4%"></div>
-        <div class="tir-segment-in" style="width:74%"></div>
-        <div class="tir-segment-high" style="width:22%"></div>
+    <!-- 2. TODAY'S PATTERNS -->
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+        <span style="font-size:14px;">🤖</span>
+        <p class="label" style="margin:0;">Today's patterns</p>
       </div>
-      <div class="tir-labels">
-        <span>Low 4%</span><span>In range 74%</span><span>High 22%</span>
-      </div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:6px;">
+        Your <strong style="color:var(--text);">porridge + banana breakfast</strong> caused a +2.1 mmol/L spike peaking at 8:00 AM — consistent with previous high-carb breakfasts. The <strong style="color:var(--text);">45 min cycling session</strong> brought levels down smoothly over 90 minutes.
+      </p>
+      <p style="font-size:13px;color:var(--amber);line-height:1.6;">
+        ⚠ Last night's <strong>5h 40m sleep</strong> was below your usual — your fasting glucose this morning (6.8) was 0.6 higher than on well-rested days.
+      </p>
     </div>
 
-    <!-- CHART PREVIEW CARD -->
-    <div class="chart-card mb16" onclick="openChart()">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 0;">
+    <!-- 3. CHART (with last dose above) -->
+    <div class="chart-card mb12" onclick="openChart()">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px;">
         <span class="label">24-hour chart</span>
         <span style="font-size:11px;color:var(--accent2);">⟳ Rotate to expand</span>
       </div>
-      <div class="chart-preview">
+      <div style="display:flex;align-items:center;gap:8px;padding:0 14px 8px;border-bottom:1px solid var(--border);">
+        <div style="width:24px;height:24px;border-radius:7px;background:rgba(239,68,68,.15);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">💉</div>
+        <span style="font-size:12px;color:var(--text2);">Last dose: <strong style="color:var(--text);">4u NovoRapid (rapid)</strong></span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text3);">9:45 AM · 2h ago</span>
+      </div>
+      <div class="chart-preview" style="height:130px;">
         <canvas id="mini-chart" style="width:100%;height:100%;"></canvas>
       </div>
     </div>
 
-    <!-- STATS GRID -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-      <div class="card" style="margin:0;padding:14px;">
-        <p class="label mb8">Avg glucose</p>
-        <p style="font-family:var(--font-display);font-size:26px;color:var(--text);">6.4</p>
-        <p class="caption">mmol/L · today</p>
-      </div>
-      <div class="card" style="margin:0;padding:14px;">
-        <p class="label mb8">Time in range</p>
-        <p style="font-family:var(--font-display);font-size:26px;color:var(--green);">74%</p>
-        <p class="caption">Last 30 days</p>
-      </div>
-    </div>
-
-    <!-- QUICK LOG -->
-    <p class="label mb8">Quick log</p>
-    <div class="quick-grid mb16">
+    <!-- 4. QUICK LOG -->
+    <p class="label mb8" style="margin-top:12px;">Quick log</p>
+    <div class="quick-grid mb12">
       <div class="quick-btn" onclick="setNav('nav-log');go('s-log-meal')"><div class="q-icon">🍽️</div><div class="q-label">Meal</div></div>
       <div class="quick-btn" onclick="setNav('nav-log');go('s-log-activity')"><div class="q-icon">🏃</div><div class="q-label">Activity</div></div>
       <div class="quick-btn" onclick="setNav('nav-log');go('s-log-insulin')"><div class="q-icon">💉</div><div class="q-label">Insulin</div></div>
       <div class="quick-btn" onclick="setNav('nav-log');go('s-log-mood')"><div class="q-icon">😊</div><div class="q-label">Mood</div></div>
     </div>
 
-    <!-- TODAY LOG -->
+    <!-- 5. TODAY'S LOG -->
     <div class="section-hd">
       <p class="label">Today's log</p>
       <span style="font-size:12px;color:var(--accent2);">See all</span>
@@ -1165,7 +1191,7 @@ input[type=range]::-webkit-slider-thumb {
           <div class="toggle-name">Light mode</div>
           <div class="toggle-sub">Switch between dark and light theme</div>
         </div>
-        <div class="sw" id="theme-sw" onclick="toggleTheme()"></div>
+        <div class="sw on" id="theme-sw" onclick="toggleTheme()"></div>
       </div>
     </div>
 
@@ -1826,23 +1852,20 @@ function checkTcScroll(scrollId, btnId) {
   const btn = document.getElementById(btnId);
   if (!el || !btn) return;
   const near = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
-  if (near) { btn.disabled = false; btn.style.opacity = '1'; }
-  if (scrollId === 'pp-scroll') {
-    const ack = document.getElementById('data-ack');
-    if (ack) { ack.addEventListener('change', () => { if(ack.checked && near) { btn.disabled=false; btn.style.opacity='1'; } }); }
-  }
+  if (near) checkAck();
 }
-// Activate PP button only after both scroll and checkbox
+function checkAck() {
+  const ack = document.getElementById('data-ack');
+  const el = document.getElementById('tc-scroll');
+  const btn = document.getElementById('tc-btn');
+  if (!btn) return;
+  const scrolled = el ? (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) : true;
+  const checked = ack ? ack.checked : true;
+  if (scrolled && checked) { btn.disabled = false; btn.style.opacity = '1'; }
+}
 document.addEventListener('DOMContentLoaded', () => {
   const ack = document.getElementById('data-ack');
-  const ppBtn = document.getElementById('pp-btn');
-  if (ack && ppBtn) {
-    ack.addEventListener('change', () => {
-      const el = document.getElementById('pp-scroll');
-      const near = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
-      if (ack.checked && near) { ppBtn.disabled=false; ppBtn.style.opacity='1'; }
-    });
-  }
+  if (ack) ack.addEventListener('change', checkAck);
 });
 
 // ── SERVICES ──
@@ -1889,36 +1912,51 @@ function buildMiniChart() {
   if (!canvas) return;
   if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
   const ctx = canvas.getContext('2d');
+  const isDark = !document.body.classList.contains('light');
+  const gridCol = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  const tickCol = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.25)';
+
+  // Realistic data: sleep-elevated start, breakfast spike, cycling dip, lunch spike, afternoon steady, dinner spike, insulin correction
   const labels = Array.from({length:24}, (_,i) => i%6===0 ? i+'h' : '');
-  const data = [6.8,6.5,3.6,4.2,5.1,6.0,7.2,8.4,8.1,7.6,6.9,6.5,5.8,6.0,6.8,7.2,6.4,5.9,6.1,6.5,6.3,6.1,6.2,6.2];
-  const grad = ctx.createLinearGradient(0,0,0,80);
-  grad.addColorStop(0,'rgba(59,130,246,0.35)');
-  grad.addColorStop(1,'rgba(59,130,246,0)');
+  const glucose = [6.8,6.6,3.4,3.8,4.8,5.6,6.2,7.8,10.4,9.2,7.8,6.9,6.4,7.2,9.6,8.1,6.8,6.2,6.8,9.2,10.8,8.4,7.1,6.2];
+  // meal=5(breakfast),8(during ride?),13(lunch),19(dinner); activity=7(ride start); insulin=9,20
+  const mealPts  = glucose.map((v,i) => [5,13,19].includes(i) ? v : null);
+  const actPts   = glucose.map((v,i) => i===7 ? v : null);
+  const insPts   = glucose.map((v,i) => [9,20].includes(i) ? v : null);
+
+  const threshPlugin = {
+    id:'miniThresh',
+    afterDraw(chart) {
+      const {ctx, chartArea:{left,right}, scales:{y}} = chart;
+      [[5,'rgba(245,158,11,0.5)'],[10,'rgba(239,68,68,0.5)']].forEach(([val,col]) => {
+        const yp = y.getPixelForValue(val);
+        ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=1;
+        ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(left,yp); ctx.lineTo(right,yp); ctx.stroke();
+        ctx.restore();
+      });
+    }
+  };
+
+  const grad = ctx.createLinearGradient(0,0,0,110);
+  grad.addColorStop(0,'rgba(59,130,246,0.3)'); grad.addColorStop(1,'rgba(59,130,246,0)');
+
   chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data,
-        borderColor: '#3b82f6',
-        borderWidth: 2,
-        fill: true,
-        backgroundColor: grad,
-        tension: 0.45,
-        pointRadius: 0,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, animation: false,
-      plugins: { legend: {display:false}, tooltip: {enabled:false} },
-      scales: {
-        x: { display:false },
-        y: {
-          display: true, min: 2.5, max: 11,
-          grid: { color:'rgba(255,255,255,0.05)', drawBorder:false },
-          ticks: { color:'rgba(255,255,255,0.2)', font:{size:9}, maxTicksLimit:4 },
-          border: { display:false }
-        }
+    type:'line', plugins:[threshPlugin],
+    data:{ labels, datasets:[
+      { data:glucose, borderColor:'#3b82f6', borderWidth:2, fill:true, backgroundColor:grad, tension:0.4, pointRadius:0 },
+      { data:mealPts,  type:'scatter', pointStyle:'triangle', pointRadius:6, pointBackgroundColor:'#60a5fa', pointBorderColor:'#fff', pointBorderWidth:1, showLine:false },
+      { data:actPts,   type:'scatter', pointStyle:'rectRot',  pointRadius:5, pointBackgroundColor:'#22c55e', pointBorderColor:'#fff', pointBorderWidth:1, showLine:false },
+      { data:insPts,   type:'scatter', pointStyle:'circle',   pointRadius:5, pointBackgroundColor:'#ef4444', pointBorderColor:'#fff', pointBorderWidth:1, showLine:false },
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:false,
+      plugins:{ legend:{display:false}, tooltip:{enabled:false} },
+      scales:{
+        x:{ display:false },
+        y:{ display:true, min:2.5, max:12,
+          grid:{color:gridCol, drawBorder:false},
+          ticks:{color:tickCol, font:{size:9}, maxTicksLimit:4, callback:v=>v.toFixed(0)},
+          border:{display:false} }
       }
     }
   });
@@ -1930,151 +1968,103 @@ function buildFullChart() {
   const canvas = document.getElementById('full-chart');
   if (!canvas) return;
   if (fullChartInstance) { fullChartInstance.destroy(); fullChartInstance = null; }
-
   const ctx = canvas.getContext('2d');
+  const isDark = !document.body.classList.contains('light');
+  const gridCol = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
+  const tickCol = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.4)';
+  const tooltipBg = isDark ? 'rgba(17,24,39,0.95)' : 'rgba(255,255,255,0.97)';
+  const tooltipTitle = isDark ? '#f0f4ff' : '#0d1117';
+  const tooltipBody = isDark ? '#8899b8' : '#4a5568';
+
   const labels = Array.from({length:24}, (_,i) => {
-    const h = i; const ampm = h < 12 ? 'am' : 'pm'; const h12 = h === 0 ? 12 : h > 12 ? h-12 : h;
-    return h%3===0 ? h12+ampm : '';
+    const ampm = i < 12 ? 'am' : 'pm'; const h12 = i===0?12:i>12?i-12:i;
+    return i%3===0 ? h12+ampm : '';
   });
-  const glucose = [6.8,6.5,3.6,4.2,5.1,6.0,7.2,8.4,8.1,7.6,6.9,6.5,5.8,6.0,6.8,7.2,6.4,5.9,6.1,6.5,6.3,6.1,6.2,6.2];
 
-  // Annotations as scatter points
-  const mealPts = glucose.map((v,i) => [5,8,13,19].includes(i) ? v : null);
-  const actPts = glucose.map((v,i) => [8,15].includes(i) ? v : null);
-  const insulinPts = glucose.map((v,i) => [9,20].includes(i) ? v : null);
+  // Realistic: sleep hypo recovery, breakfast spike over 10, cycling correction, lunch spike, steady, dinner spike, insulin correction
+  const glucose = [6.8,6.6,3.4,3.8,4.8,5.6,6.2,7.8,10.4,9.2,7.8,6.9,6.4,7.2,9.6,8.1,6.8,6.2,6.8,9.2,10.8,8.4,7.1,6.2];
+  const mealPts   = glucose.map((v,i) => [5,13,19].includes(i) ? v : null);
+  const actPts    = glucose.map((v,i) => i===7 ? v : null);
+  const insulinPts= glucose.map((v,i) => [9,20].includes(i) ? v : null);
 
-  // Sleep region: indices 0-6 and 21-23
-  const sleepPlugin = {
-    id: 'sleepBands',
-    beforeDraw(chart) {
-      const {ctx, chartArea: {top,bottom}, scales: {x}} = chart;
-      [[0,6],[21,23]].forEach(([s,e]) => {
-        const x1 = x.getPixelForValue(s); const x2 = x.getPixelForValue(e);
+  // Threshold lines plugin
+  const threshPlugin = {
+    id:'threshLines',
+    afterDraw(chart) {
+      const {ctx, chartArea:{left,right,top,bottom}, scales:{y}} = chart;
+      const lines = [{val:5,col:'rgba(245,158,11,0.6)',label:'Low 5.0'},{val:10,col:'rgba(239,68,68,0.6)',label:'High 10.0'}];
+      lines.forEach(({val,col,label}) => {
+        const yp = y.getPixelForValue(val);
+        if (yp < top || yp > bottom) return;
         ctx.save();
-        ctx.fillStyle = 'rgba(59,130,246,0.1)';
-        ctx.fillRect(x1, top, x2-x1, bottom-top);
+        ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.setLineDash([6,4]);
+        ctx.beginPath(); ctx.moveTo(left,yp); ctx.lineTo(right,yp); ctx.stroke();
+        ctx.fillStyle=col; ctx.font='10px sans-serif'; ctx.textAlign='left';
+        ctx.fillText(label, left+4, yp-4);
         ctx.restore();
       });
     }
   };
-  // Mood wash regions
-  const moodPlugin = {
-    id: 'moodBands',
+
+  const sleepPlugin = {
+    id:'sleepBands',
     beforeDraw(chart) {
-      const {ctx, chartArea: {top,bottom}, scales: {x}} = chart;
-      const bands = [
-        {from:7,to:10,color:'rgba(34,197,94,0.07)'},
-        {from:10,to:15,color:'rgba(245,158,11,0.07)'},
-        {from:15,to:21,color:'rgba(34,197,94,0.07)'},
-      ];
-      bands.forEach(b => {
-        const x1 = x.getPixelForValue(b.from); const x2 = x.getPixelForValue(b.to);
-        ctx.save(); ctx.fillStyle = b.color;
-        ctx.fillRect(x1, top, x2-x1, bottom-top);
-        ctx.restore();
+      const {ctx, chartArea:{top,bottom}, scales:{x}} = chart;
+      [[0,5],[21,23]].forEach(([s,e]) => {
+        const x1=x.getPixelForValue(s), x2=x.getPixelForValue(e);
+        ctx.save(); ctx.fillStyle='rgba(59,130,246,0.08)';
+        ctx.fillRect(x1,top,x2-x1,bottom-top); ctx.restore();
+      });
+    }
+  };
+
+  const moodPlugin = {
+    id:'moodBands',
+    beforeDraw(chart) {
+      const {ctx, chartArea:{top,bottom}, scales:{x}} = chart;
+      [{from:6,to:10,color:'rgba(34,197,94,0.06)'},{from:10,to:15,color:'rgba(245,158,11,0.06)'},{from:15,to:21,color:'rgba(34,197,94,0.06)'}]
+      .forEach(b => {
+        const x1=x.getPixelForValue(b.from), x2=x.getPixelForValue(b.to);
+        ctx.save(); ctx.fillStyle=b.color; ctx.fillRect(x1,top,x2-x1,bottom-top); ctx.restore();
       });
     }
   };
 
   const grad = ctx.createLinearGradient(0,0,0,300);
-  grad.addColorStop(0,'rgba(59,130,246,0.3)');
-  grad.addColorStop(1,'rgba(59,130,246,0)');
+  grad.addColorStop(0,'rgba(59,130,246,0.28)'); grad.addColorStop(1,'rgba(59,130,246,0)');
 
   fullChartInstance = new Chart(ctx, {
-    type: 'line',
-    plugins: [sleepPlugin, moodPlugin],
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Glucose',
-          data: glucose,
-          borderColor: '#60a5fa',
-          borderWidth: 2.5,
-          fill: true,
-          backgroundColor: grad,
-          tension: 0.45,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: '#60a5fa',
-        },
-        {
-          label: 'Meals',
-          data: mealPts,
-          type: 'scatter',
-          pointStyle: 'triangle',
-          pointRadius: 8,
-          pointBackgroundColor: '#3b82f6',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 1.5,
-          showLine: false,
-        },
-        {
-          label: 'Activity',
-          data: actPts,
-          type: 'scatter',
-          pointStyle: 'rectRot',
-          pointRadius: 7,
-          pointBackgroundColor: '#22c55e',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 1.5,
-          showLine: false,
-        },
-        {
-          label: 'Insulin',
-          data: insulinPts,
-          type: 'scatter',
-          pointStyle: 'circle',
-          pointRadius: 6,
-          pointBackgroundColor: '#ef4444',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 1.5,
-          showLine: false,
-        },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      animation: { duration: 600 },
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(17,24,39,0.95)',
-          borderColor: 'rgba(255,255,255,0.1)',
-          borderWidth: 1,
-          titleColor: '#f0f4ff',
-          bodyColor: '#8899b8',
-          padding: 10,
-          callbacks: {
-            label: (ctx) => {
-              if (ctx.dataset.label === 'Glucose') return `  ${ctx.parsed.y.toFixed(1)} mmol/L`;
-              if (ctx.parsed.y !== null) return `  ${ctx.dataset.label}`;
-              return null;
-            }
-          }
-        },
-        annotation: {}
-      },
-      scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-          ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 } },
-          border: { display: false }
-        },
-        y: {
-          min: 2, max: 12,
-          grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
-          ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 }, callback: v => v.toFixed(0) },
-          border: { display: false }
+    type:'line', plugins:[sleepPlugin, moodPlugin, threshPlugin],
+    data:{ labels, datasets:[
+      { label:'Glucose', data:glucose, borderColor:'#60a5fa', borderWidth:2.5, fill:true, backgroundColor:grad, tension:0.4, pointRadius:0, pointHoverRadius:5, pointHoverBackgroundColor:'#60a5fa' },
+      { label:'Meals',   data:mealPts,   type:'scatter', pointStyle:'triangle', pointRadius:9,  pointBackgroundColor:'#3b82f6', pointBorderColor:'#fff', pointBorderWidth:1.5, showLine:false },
+      { label:'Activity',data:actPts,    type:'scatter', pointStyle:'rectRot',  pointRadius:8,  pointBackgroundColor:'#22c55e', pointBorderColor:'#fff', pointBorderWidth:1.5, showLine:false },
+      { label:'Insulin', data:insulinPts,type:'scatter', pointStyle:'circle',   pointRadius:7,  pointBackgroundColor:'#ef4444', pointBorderColor:'#fff', pointBorderWidth:1.5, showLine:false },
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:600},
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:tooltipBg, borderColor:'rgba(128,128,128,0.2)', borderWidth:1,
+          titleColor:tooltipTitle, bodyColor:tooltipBody, padding:10,
+          callbacks:{ label:(c) => {
+            if(c.dataset.label==='Glucose') return `  ${c.parsed.y.toFixed(1)} mmol/L`;
+            if(c.parsed.y!==null) return `  ${c.dataset.label}`;
+            return null;
+          }}
         }
+      },
+      scales:{
+        x:{ grid:{color:gridCol, drawBorder:false}, ticks:{color:tickCol, font:{size:11}}, border:{display:false} },
+        y:{ min:2, max:13,
+          grid:{color:gridCol, drawBorder:false},
+          ticks:{color:tickCol, font:{size:11}, callback:v=>v.toFixed(0)},
+          border:{display:false} }
       }
     }
   });
-
-  // Draw target range band manually
-  const meta = fullChartInstance.getDatasetMeta(0);
-  fullChartInstance.options.plugins.beforeDraw = () => {};
 }
 
 function setChartRange(r, el) {
@@ -2111,6 +2101,8 @@ function closeChart() {
   currentScreen = 's-dashboard';
   document.getElementById('s-dashboard').classList.add('active');
   if (fullChartInstance) { fullChartInstance.destroy(); fullChartInstance = null; }
+  // Rebuild mini-chart — canvas retains landscape dimensions without this
+  setTimeout(buildMiniChart, 60);
 }
 
 // ── ORIENTATION LOCK ──
@@ -2150,16 +2142,9 @@ function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
   const sw = document.getElementById('theme-sw');
   if (sw) sw.classList.toggle('on', isLight);
-  // Update chart grid colors if chart is open
-  if (currentScreen === 's-chart' && fullChartInstance) {
-    const gc = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
-    const tc = isLight ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.35)';
-    fullChartInstance.options.scales.x.grid.color = gc;
-    fullChartInstance.options.scales.x.ticks.color = tc;
-    fullChartInstance.options.scales.y.grid.color = gc;
-    fullChartInstance.options.scales.y.ticks.color = tc;
-    fullChartInstance.update();
-  }
+  // Rebuild charts with correct colours if visible
+  if (currentScreen === 's-dashboard' && chartInstance) { buildMiniChart(); }
+  if (currentScreen === 's-chart' && fullChartInstance) { buildFullChart(); }
 }
 
 // ── MEAL ITEM LOGIC ──
